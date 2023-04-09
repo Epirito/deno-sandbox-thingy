@@ -9,4 +9,7 @@ export const examinables: Record<string, ExaminableComponent> = {
     lamp: new LightSourceExaminableComponent('lamp', ''),
     bimux: new PlainExaminableComponent('mux', 'Joins signals together or splits them apart.'),
     belt: new PlainExaminableComponent('belt', 'Moves entities.'),
+    bullet: new PlainExaminableComponent('bullet', ''),
+    gun: new PlainExaminableComponent('gun', ''),
+    car: new PlainExaminableComponent('car', ''),
 }

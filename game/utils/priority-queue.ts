@@ -8,8 +8,8 @@ export class PriorityQueue<T> {
         }
     }
     enqueue(priority: number, item: T) {
-        this.queue.push([priority, item])
-        this.queue.sort(([a,_], [b,_1])=>a-b)
+       this.queue.push([priority, item])
+       this.queue.sort(([a, _], [b, _1])=>a-b)
     }
     dequeue() {return this.queue.shift()?.[1]}
     remove(item: T) {

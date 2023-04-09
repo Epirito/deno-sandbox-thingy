@@ -1,22 +1,18 @@
-export interface DamageableComponent {
-    damage(damage: number): void
+import { Entity } from "../mod.ts";
+import { destroy } from "../stuff/world-actions.ts";
+import { Scheduler } from "./scheduler.ts";
+import { ThingManager } from "./thing-manager.ts";
+import { ActionRequester } from "./trivial-systems.ts";
+
+export type DamageableComponent = {
+  integrity: number,
+  total: number
 }
-export class SustainedDamageComponent implements DamageableComponent {
-    private _integrity: number
-    constructor(readonly total: number, private onDestroyed: ()=>void) {
-      this._integrity = total; 
-    }
-    integrity() {return this._integrity}
-    damage(damage: number) {
-      this._integrity -= damage;
-      if (this._integrity <= 0) {
-        this.onDestroyed()
-      }
-    }
-}
-export class SingleHitComponent implements DamageableComponent {
-    constructor(readonly threshold: number, private onDestroyed: ()=>void) {}
-    damage(damage: number) {
-        if (damage >= this.threshold) this.onDestroyed()
-    }
+export function damage(requester: ActionRequester, entity: Entity, dmg: number) {
+  if (!entity.damageableComp) return;
+  
+  entity.damageableComp.integrity -= dmg;
+  if(entity.damageableComp!.integrity <= 0) {
+    requester.doAction!(...destroy.from([entity], {}))
+  }
 }

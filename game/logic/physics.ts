@@ -33,11 +33,11 @@ export class PhysicsSystem implements IPhysicsSystem {
   private unplacedFrom: CopiableEventTarget<EntityEvent>;
   private stateByEntity = new Map<Entity, PhysicsState>();
   private entitiesByPosition = new MultiMap<string, Entity>();
-  constructor(actionRequester: ActionRequester) {
-    this.unplaced = new CopiableEventTarget<VoidEvent>(actionRequester);
-    this.placed = new CopiableEventTarget<VoidEvent>(actionRequester);
-    this.placedAt = new CopiableEventTarget<EntityEvent>(actionRequester);
-    this.unplacedFrom = new CopiableEventTarget<EntityEvent>(actionRequester);
+  constructor({actionRequester}: Record<string, System>) {
+    this.unplaced = new CopiableEventTarget<VoidEvent>(actionRequester as ActionRequester);
+    this.placed = new CopiableEventTarget<VoidEvent>(actionRequester as ActionRequester);
+    this.placedAt = new CopiableEventTarget<EntityEvent>(actionRequester as ActionRequester);
+    this.unplacedFrom = new CopiableEventTarget<EntityEvent>(actionRequester as ActionRequester);
   }
   position(entity: Entity) {
     return this.stateByEntity.get(entity)?.position;
@@ -117,14 +117,10 @@ export class PhysicsSystem implements IPhysicsSystem {
     this.place(entity, {position});
     return true
   }
-  moveX(entity: Entity, delta: number) {
+  moveAxis(entity: Entity, delta: number, axis: 0 | 1) {
     const state = this.stateByEntity.get(entity)!;
-    const destination: [number, number] = [state.position[0]+delta, state.position[1]]
-    return this.placeIfNotBlocked(entity, destination)
-  }
-  moveY(entity: Entity, delta: number) {
-    const state = this.stateByEntity.get(entity)!;
-    const destination: [number, number] = [state.position[0], state.position[1]+delta]
+    const destination: [number, number] = [...state.position]
+    destination[axis] += delta;
     return this.placeIfNotBlocked(entity, destination)
   }
   cleanUpDestroyed(entity: Entity) {
@@ -132,7 +128,7 @@ export class PhysicsSystem implements IPhysicsSystem {
   }
   copy(dependencies: Record<string, System>) {
     const thingManager = dependencies['thingManager'] as ThingManager;
-    const copy = new PhysicsSystem(dependencies['actionRequester']);
+    const copy = new PhysicsSystem(dependencies);
     for (const [entity, state] of this.stateByEntity) {
       copy.stateByEntity.set(thingManager.byId(entity.id)!, state.copy());
     }

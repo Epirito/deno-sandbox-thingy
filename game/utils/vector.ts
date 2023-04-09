@@ -1,4 +1,4 @@
-import mod from "./mod.ts";
+import mod from "./modulus.ts";
 export function sum([x1, y1]: [number, number], [x2, y2]: [number, number])
     : [number, number] {
     return [x1 + x2, y1 + y2];

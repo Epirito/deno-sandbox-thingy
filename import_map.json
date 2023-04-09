@@ -7,6 +7,7 @@
     "@preact/signals": "https://esm.sh/*@preact/signals@1.1.3",
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.2.3",
     "game": "./game/mod.ts",
-    "multiplayer": "./multiplayer/mod.ts"
+    "modularMultiplayer": "https://raw.githubusercontent.com/Epirito/multiplayer/main/client/mod.ts",
+    "multiplayerServer" : "https://raw.githubusercontent.com/Epirito/multiplayer/main/server/mod.ts"
   }
 }

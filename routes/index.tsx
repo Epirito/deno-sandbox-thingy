@@ -1,6 +1,5 @@
 import { Head } from "$fresh/runtime.ts";
-import App from "../islands/App.tsx";
-import Counter from "../islands/Counter.tsx";
+import SandboxApp from "../islands/SandboxApp.tsx";
 
 export default function Home() {
   return (
@@ -8,7 +7,7 @@ export default function Home() {
       <Head>
         <title>Fresh App</title>
       </Head>
-      <div><App/></div>
+      <div style={{backgroundColor: 'black', color: 'white'}}><SandboxApp/></div>
     </>
   );
 }

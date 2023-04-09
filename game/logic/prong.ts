@@ -65,17 +65,17 @@ export class ProngSystem implements IProngSystem {
     private eventField = new EventTarget();
     private rateLimitedPoints = new Set<string>();
     private pluggingReconstruction: string[] = []
-    static plug = new Action(undefined, dependencies=>(terms, _) => {
+    static plug = new Action(true, undefined, dependencies=>(terms, _) => {
         const {electricity} = dependencies as {electricity: ProngSystem}
         const [entity] = terms
         electricity.plug(entity)
     })
-    static unplug = new Action(undefined, dependencies=>(terms, _) => {
+    static unplug = new Action(true, undefined, dependencies=>(terms, _) => {
         const {electricity} = dependencies as {electricity: ProngSystem}
         const [entity] = terms
         electricity.unplug(entity)
     })
-    static stopRateLimiting = new Action(undefined, dependencies=>(_, vals)=>{
+    static stopRateLimiting = new Action(true, undefined, dependencies=>(_, vals)=>{
         // a glimpse into how prong system dependencies will work when electricity is no longer hardcoded
         const {prongSystemName} = vals as {prongSystemName: string}
         const prongSystem = dependencies[prongSystemName] as ProngSystem
@@ -83,7 +83,7 @@ export class ProngSystem implements IProngSystem {
     })
     phys: PhysicsSystem;
     scheduler: Scheduler;
-    constructor(private dependencies: Record<string, unknown>) {
+    constructor(dependencies: Record<string, unknown>) {
         this.phys = dependencies['phys'] as PhysicsSystem;
         this.scheduler = dependencies['scheduler'] as Scheduler;
     }

@@ -1,22 +1,7 @@
-import { Clock } from "../logic/clock.ts";
-import {ContainerSystem} from "../logic/container.ts";
 import { PhysicsSystem } from "../logic/physics.ts";
-import { ProngSystem } from "../logic/prong.ts";
-import { Scheduler } from "../logic/scheduler.ts";
 import Simulation from "../logic/simulation.ts";
-import { trivialSystem } from "../logic/trivial-systems.ts";
 import { ThingManager } from "../logic/thing-manager.ts";
 
-export function emptySimulation() {
-    const thingManager = new ThingManager()
-    const actionRequester = trivialSystem()
-    const clock = new Clock()
-    const scheduler = new Scheduler({clock, actionRequester})
-    const phys = new PhysicsSystem(actionRequester);
-    const electricity = new ProngSystem({phys, scheduler});
-    const container = new ContainerSystem({phys, thingManager});
-    return new Simulation({phys, electricity, container, thingManager, actionRequester, clock, scheduler});
-}
 export function spawnPlayers(sim: Simulation, nPlayer: number, spawnPoint: [number, number]) {
     const playerIds = []
     for(let i = 0; i < nPlayer; i++) {
@@ -25,4 +10,23 @@ export function spawnPlayers(sim: Simulation, nPlayer: number, spawnPoint: [numb
         (sim.systems['phys'] as PhysicsSystem).place(player, {position: spawnPoint, rotation: 0});
     }
     return [sim, playerIds] as const;
+}
+export function debugWorld(sim: Simulation) {
+    const {phys} = sim.systems as {phys: PhysicsSystem};
+    phys.place(sim.make('craftingTable'), { position: [5, 6], rotation: 0 })
+    phys.place(sim.make('chest'), { position: [1, 0], rotation: 0 });
+    phys.place(sim.make('pressurePlate'), { position: [1, 3], rotation: 0 });
+    phys.place(sim.make('wire'), { position: [3, 3], rotation: 0 });
+    phys.place(sim.make('wire'), { position: [2, 3], rotation: 0 });
+    phys.place(sim.make('wire'), { position: [2, 2], rotation: 0 });
+    phys.place(sim.make('bimux'), { position: [3, 2], rotation: 0 });
+    phys.place(sim.make('wire'), { position: [4, 2], rotation: 0 });
+    phys.place(sim.make('wire'), { position: [5, 2], rotation: 0 });
+    phys.place(sim.make('bimux'), { position: [6, 2], rotation: 2 });
+    phys.place(sim.make('lamp'), { position: [7, 2], rotation: 0 });
+    phys.place(sim.make('lamp'), { position: [6, 1], rotation: 0 });
+    phys.place(sim.make('car'), { position: [6, 3], rotation: 0 });
+    phys.place(sim.make('belt'), { position: [1, 1], rotation: 0 });
+    phys.place(sim.make('belt'), { position: [2, 1], rotation: 0 });
+    return sim
 }

@@ -6,7 +6,7 @@ export class Action {
     private static actionByIota = new Map<number, Action>();
     static byIota = (iota: number) => Action.actionByIota.get(iota);
     readonly iota!: number
-    constructor(readonly verb?: (terms: string[])=>string, readonly effect?: (dependencies: Record<string, System>)=>(terms: Entity[], vals?: Record<string, unknown>)=>void|(string|undefined), readonly world = false) {
+    constructor(readonly world: boolean, readonly verb?: (terms: string[])=>string, readonly effect?: (dependencies: Record<string, System>)=>(terms: Entity[], vals?: Record<string, unknown>)=>void|(string|undefined)) {
         this.iota = Action.n++;
         Action.actionByIota.set(this.iota, this);
     }

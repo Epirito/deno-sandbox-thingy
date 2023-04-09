@@ -12,7 +12,7 @@ export class PlainExaminableComponent implements ExaminableComponent {
 }
 export class LightSourceExaminableComponent implements ExaminableComponent {
     constructor(private name: string, private description: string) {}
-    examine(_: Entity, me: Entity): [string, string] {
-        return [this.name, this.description + (me.lightSourceComp ? "\nIt's turned on." : "")]
+    examine(_: Entity, me?: Entity): [string, string] {
+        return [this.name, this.description + (me?.lightSourceComp ? "\nIt's turned on." : "")]
     }
 }

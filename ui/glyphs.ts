@@ -5,10 +5,13 @@ const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     chest: ['🗄️'],
     man: ['👨'],
     wire: ['➰'],
-    pressurePlate: ['_'],
-    bimux: ['>', 'A', '<', 'V'],
+    pressurePlate: ['__'],
+    bimux: ['>>', 'AA', '<<', 'VV'],
     belt: ['➡️', '⬆️', '⬅️', '⬇️'],
-    lamp: {on: '💡', off: 'O'},
+    lamp: {on: '💡', off: 'OO'},
+    bullet: ['--'],
+    gun: ['🔫'],
+    car: ['🚗'],
 }
 for(const glyph in rawGlyphs) {
     const val = rawGlyphs[glyph]

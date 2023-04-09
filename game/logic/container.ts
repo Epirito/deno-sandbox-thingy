@@ -15,6 +15,12 @@ export interface IContainerSystem extends System {
   getEquipped(actor: IEntity): IEntity | undefined;
   contents(container: IEntity): IEntity[];
 }
+export function systemDependency<T extends System>(systemName: string, effect: (system: T)=>(terms: Entity[], vals?: Record<string, unknown>)=>void){
+  return (dependencies: Record<string, System>)=>effect(dependencies[systemName] as T)
+}
+export function containerDependency(effect: (container: ContainerSystem)=>(terms: Entity[], vals?: Record<string, unknown>)=>void){
+  return (dependencies: Record<string, System>)=>effect((dependencies as {container: ContainerSystem}).container)
+}
 export class ContainerSystem implements IContainerSystem {
   private containedByContainer: MultiMap<Entity, Entity> = new MultiMap();
   private equippedByEntity: Map<Entity, Entity> = new Map();
@@ -34,18 +40,24 @@ export class ContainerSystem implements IContainerSystem {
     this.phys.unplace(item);
     this.equippedByEntity.set(actor, item);
   }
+  canContain(container: Entity, _: Entity) {
+    return container.containerComp!.capacity > this.containedByContainer.get(container)?.length
+  }
   tryInsertInto(actor: Entity, into: Entity) {
     const item = this.getEquipped(actor);
     if (!item) {
       return 'not holding item'
     }
-    if (this.containedByContainer.get(into)?.length === into.containerComp?.capacity) {
+    if (this.canContain(into, item)) {
       return 'container full'
     }
     this.equippedByEntity.delete(actor);
     this.containedByContainer.set(into, item);
   }
-  enter(actor: Entity, container: Entity) {
+  tryEnter(actor: Entity, container: Entity) {
+    if (!this.canContain(container, actor)) {
+      return 'container full'
+    }
     this.phys.unplace(actor);
     this.containedByContainer.set(container, actor);
   }

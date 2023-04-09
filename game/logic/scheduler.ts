@@ -11,11 +11,10 @@ export class Scheduler implements System {
     constructor(dependencies: Record<string, System>, priorityQueue?: PriorityQueue<SaturatedAction>) {
         this.priorityQueue = priorityQueue ?? new PriorityQueue()
         this.clock = dependencies['clock'] as Clock
-        this.actionRequester = dependencies['actionRequester']
+        this.actionRequester = dependencies['actionRequester'] as ActionRequester
         this.clock.onTick((evt: Event) => {
-            if ((evt as CustomEvent).detail >= this.priorityQueue.head()?.[0]) {
+            while ((evt as CustomEvent).detail >= this.priorityQueue.head()?.[0]) {
                 const [actionIota, termIds, val] = this.priorityQueue.dequeue()!
-                console.log(val)
                 this.actionRequester.doAction!(actionIota, termIds, val)
             }
         })

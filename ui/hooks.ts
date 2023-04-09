@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 
-export function useGameState<T>(getState: ()=>T, addUpdateListener: (listener: (e: Event)=>void)=>void, removeUpdateListener: (listener: (e: Event)=>void)=>void) {
+export function useGameState<T>(getState: ()=>T, addUpdateListener: (listener: (e: Event)=>void)=>void, removeUpdateListener?: (listener: (e: Event)=>void)=>void) {
     const [state, setState] = useState(getState());
     useEffect(() => {
         const listener = () => setState(getState());
         addUpdateListener(listener);
         return () => {
-            removeUpdateListener(listener);
+            removeUpdateListener?.(listener);
         }
     }, []);
     return state;

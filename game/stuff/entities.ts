@@ -4,18 +4,36 @@ import { ProngSystem, ProngedComponent } from "../logic/prong.ts";
 import { lampSpec, inputSpec, wireSpec, bimuxSpec } from "./pronged-specs.ts";
 import { CraftingComponent, Recipe } from "../logic/crafting.ts";
 import { Scheduler } from "../logic/scheduler.ts";
-import { onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
+import { collision, onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
 import { System } from "../logic/simulation.ts";
-import { examinables } from "../mod.ts";
+import { emitProjectile, examinables, shoot } from "../mod.ts";
 import { ContainerComponent, HandComponent } from "../logic/container.ts";
+import { drive } from "./actions.ts";
 export type EntityFactory = (dependencies: Record<string, unknown>, bare: Entity)=>Entity
 export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)=>Entity} = {
     man: (_, bare: Entity)=> {
-        const player = bare;
-        player.examinableComp = examinables.man
-        player.handComp = new HandComponent(5);
-        player.blocksMovement = true;
-        return player;
+        bare.size = 6;
+        bare.examinableComp = examinables.man
+        bare.handComp = new HandComponent(5);
+        bare.damageableComp = {integrity: 20, total: 20}
+        bare.blocksMovement = true;
+        return bare;
+    },
+    gun: (_, bare: Entity)=> {
+        const gun = bare;
+        gun.examinableComp = examinables.gun;
+        gun.useComp = shoot;
+        return gun;
+    },
+    car: (_, bare: Entity)=> {
+        bare.examinableComp = examinables.car;
+        bare.size = 30;
+        bare.blocksMovement = true;
+        bare.damageableComp = {integrity: 100, total: 100}
+        bare.speedComp = {spd: [0,0], onCollision: (hitPos: [number, number], axis: 0|1)=>collision.from([bare], {hitPos, axis})}
+        bare.containerComp = new ContainerComponent(1);
+        bare.interactComp = drive;
+        return bare;
     },
     chest: (_, bare: Entity)=> {
         const chest = bare;

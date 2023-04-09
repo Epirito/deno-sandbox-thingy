@@ -1,8 +1,6 @@
 import { useRef, useState } from "preact/hooks"
-import { LockstepModel } from "../multiplayer/mod.ts";
-import { TicTacToe } from "../multiplayer/tictactoe-example.ts";
-import TicTacToeApp from "../islands/TicTacToeApp.tsx";
+import TicTacToePage from "../islands/TicTacToePage.tsx";
 
 export default function TictactoeRoute() {
-    return <div><TicTacToeApp/></div>
+    return <div><TicTacToePage/></div>
 }

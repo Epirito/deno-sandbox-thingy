@@ -6,8 +6,12 @@ import { LightSourceComponent } from "./lighting.ts";
 import { CraftingComponent } from "./crafting.ts";
 import { SaturatedAction } from "./action.ts";
 import { SignalQueueComponent } from "./mux.ts";
+import { SpeedComponent } from "./speed-based-physics.ts";
 export class Entity implements IEntity {
     essence?: string;
+    useComp?: (user: Entity)=>SaturatedAction;
+    interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
+    damageableComp?: DamageableComponent;
     examinableComp?: ExaminableComponent;
     prongedComp?: ProngedComponent;
     sustainedDmgComp?: DamageableComponent;
@@ -18,7 +22,8 @@ export class Entity implements IEntity {
     craftingComp?: CraftingComponent;
     timeOut?: SaturatedAction;
     signalQueueComp?: SignalQueueComponent
-    constructor(readonly id: string, readonly size: number, public blocksMovement = false) {
+    speedComp?: SpeedComponent
+    constructor(readonly id: string, public size: number, public blocksMovement = false) {
     }
     copy() {
       const newEntity = new Entity(this.id, this.size, this.blocksMovement)
@@ -44,4 +49,5 @@ export interface IEntity {
     readonly credentialComp?: CredentialComponent;
     readonly lightSourceComp?: LightSourceComponent;
     readonly craftingComp?: CraftingComponent
+    readonly damageableComp?: DamageableComponent
 }

@@ -2,7 +2,8 @@ import { useRef } from "preact/hooks";
 import { useDOMEvent, useFocusedRef } from "./hooks.ts";
 
 export default function List(props: {
-        onItemSelect: {[key: string]: (id: string)=>void},
+        title?: string,
+        onItemSelect?: {[key: string]: (id: string)=>void},
         onNullSelect?: {[key: string]: ()=>void}, 
         examinationOutputs: {glyph:string, name: string, description: string, id: string}[]
     }) {
@@ -35,8 +36,9 @@ export default function List(props: {
     itemRefs.current = {}
     return (
         <div>
+            <h1>{props.title}</h1>
             {examinationOutputs.map((output) => {
-                return (<button key={output.id} ref={el=>{itemRefs.current[output.id] = el}}>
+                return (<button key={output.id} ref={el=>{itemRefs.current[output.id] = el}} disabled={!props.onItemSelect}>
                     <h3>{output.glyph +' '+ output.name}</h3>
                     <p>{output.description}</p>
                 </button>)

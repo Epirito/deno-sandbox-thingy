@@ -1,12 +1,14 @@
+import { ConstructorDeclaration } from "https://deno.land/x/ts_morph@17.0.1/ts_morph.js";
 import random from "../utils/random.ts";
 import { Entity } from "./entity.ts";
 import Simulation, { System } from "./simulation.ts";
+import { SaturatedAction } from "./action.ts";
 
-export function trivialSystem(): System {
-    return {
-        copy: trivialSystem
+export class ActionRequester implements System {
+    doAction = (_actionIota: number, _termIds: string[], _vals?: Record<string, unknown>): void=>{
+        throw new Error('ActionRequester.doAction not set')
     }
-}
-export interface ActionRequester extends System {
-    doAction?(actionIota: number, termIds: string[], vals?: Record<string, unknown>): void;
+    copy() {
+        return new ActionRequester()
+    }
 }
