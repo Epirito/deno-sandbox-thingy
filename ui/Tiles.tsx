@@ -1,15 +1,20 @@
-import { IEntity, SimulationPOV } from "../game/mod.ts";
+import { JSX } from "preact/jsx-runtime";
+import { IEntity, SimulationPOV, use } from "../game/mod.ts";
 import { getGlyph } from "./glyphs.ts";
-import { useGameState } from "./hooks.ts";
+import { useDOMEvent, useGameState } from "./hooks.ts";
 import { addUpdateListener } from "./screen-update.ts";
-
-export default function Tiles(props: {pov: SimulationPOV}) {
-    const tiles = useGameState(()=>{
-        const result = [[]] as {glyph: string, bg: [number, number, number]}[][]
-        for(let y = 0; y < 10; y++) {
-            for(let x = 0; x < 10; x++) {
-                const entitiesAt = props.pov.phys.entitiesAt([x, y])
-                const entity = entitiesAt[0] as IEntity | undefined
+import { sum } from "../game/utils/vector.ts";
+import {useState, useEffect} from 'preact/hooks'
+type Tile = {glyph: string, bg: [number, number, number]}
+export default function Tiles(props: {pov: SimulationPOV, dimensions: [number, number]}) {
+    const [mousePos, setMousePos] = useState(undefined as [number, number] | undefined)
+    const [tiles, cameraPos] = useGameState(()=>{
+        const cameraPos = sum(props.pov.phys.position(props.pov.player!)!, [-Math.floor(props.dimensions[0]/2), -Math.floor(props.dimensions[1]/2)])
+        const result = [[]] as Tile[][]
+        for(let y = 0; y < props.dimensions[1]; y++) {
+            for(let x = 0; x < props.dimensions[0]; x++) {
+                const entitiesAt = props.pov.phys.entitiesAt(sum(cameraPos, [x, y]))
+                const entity = entitiesAt[entitiesAt.length-1] as IEntity | undefined
                 const glyph = entity ? getGlyph(entity, props.pov) : ".."
                 let bg: [number, number, number] = [0,0,0]
                 if (entity?.damageableComp) {
@@ -22,13 +27,39 @@ export default function Tiles(props: {pov: SimulationPOV}) {
             }
             result.push([])
         }
-        return result
+        return [result, cameraPos]
     }, addUpdateListener)
-    return (<div style={{fontFamily: 'Courier New'}}>
-        {tiles.map(row => <div>{row.map(tile => (
-            <span style={{backgroundColor: `rgba(${tile.bg.join(',')})`}}>
+    const hoverPos = mousePos ? sum(cameraPos, mousePos) : undefined
+    useDOMEvent('click', (e: MouseEvent)=>{
+        
+    }, [hoverPos])
+    return (<div 
+        onMouseLeave={()=>{setMousePos(undefined)}}
+        style={{
+        userSelect: 'none', 
+        fontFamily: 'Courier New', 
+        gridTemplateColumns: `repeat(${tiles[0].length}, 20px)`, 
+        gridTemplateRows: `repeat(${tiles.length}, 20px)`, 
+        gap: 0,
+        display: 'grid', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        width: 'fit-content'
+    }}>
+        {([] as JSX.Element[]).concat(...tiles.map((row, y) => 
+            row.map((tile, x) => (
+            <div 
+                onMouseEnter={()=>{setMousePos([x, y])}} 
+                onClick={(e)=>{
+                    e.preventDefault()
+                    if (hoverPos && e.button===0) {
+                        props.pov.playerAction(use.iota, [], {hoverPos})
+                    }}
+                } 
+                style={{backgroundColor: mousePos?.every((a,i)=>a===[x,y][i]) ? 'darkgrey' : `rgba(${tile.bg.join(',')})`, width: "100%", height: "100%"}}>
                 {tile.glyph}
-            </span> 
-            ))}</div>)}
+            </div> 
+            ))))}
     </div>)
 }
+([] as number[]).concat(...[[1,2],[3,4]])

@@ -9,23 +9,31 @@ import { ActionRequester } from "./trivial-systems.ts"
 
 export class SpeedComponent {
     spd: [number, number] = [0, 0]
-    scheduledXmove?: SaturatedAction
-    onCollision?: (hitPos: [number, number], axis: 0|1)=>SaturatedAction | undefined
+    remainders: [number, number] = [0, 0]
+    scheduledMove: [SaturatedAction | undefined, SaturatedAction | undefined] = [undefined, undefined]
+    constructor(public onCollision?: (hitPos: [number, number], axis: 0|1)=>SaturatedAction | undefined){}
 }
 export const applySpeed = new Action(true, undefined, dependencies=>(terms, vals)=>{
     const {phys, scheduler, actionRequester} = dependencies as {phys: PhysicsSystem, scheduler: Scheduler, actionRequester: ActionRequester}
     const [entity] = terms
-    const {spd, initial} = vals as {spd: [number, number], initial: boolean}
+    const {spd, axis} = vals as {spd: [number, number], axis: 0|1|undefined}
     const speedComp = entity.speedComp
     speedComp!.spd = sum(spd, speedComp!.spd)
-    if (initial) {
-        scheduler.clear(speedComp!.scheduledXmove)
+    function getDelay(spd: number, axis:0|1) {
+        const consumedRemainder = Math.floor(speedComp!.remainders[axis])
+        const currentDelay = Math.floor(60/Math.abs(spd))
+        const delay = currentDelay + consumedRemainder
+        speedComp!.remainders[axis] -= consumedRemainder
+        speedComp!.remainders[axis] += delay - currentDelay
+        return delay
     }
-    for (let axis = 0; axis < 2; axis++) {
+    function applyToAxis(axis: 0|1, immediate=true) {
         if (speedComp!.spd[axis]!==0) {
-            const delta = Math.sign(speedComp!.spd[axis])
-            const deltaVec = [0, 0] as [number, number]
-            deltaVec[axis] = delta
+        scheduler.clear(speedComp!.scheduledMove?.[axis])
+        const delta = Math.sign(speedComp!.spd[axis])
+        const deltaVec = [0, 0] as [number, number]
+        deltaVec[axis] = delta
+        if (immediate) {
             if (!phys.moveAxis(entity, delta, axis as 0|1)) {
                 if (speedComp!.onCollision) {
                     const action = speedComp!.onCollision(sum(phys.position(entity)!, deltaVec), axis as 0|1)
@@ -34,11 +42,21 @@ export const applySpeed = new Action(true, undefined, dependencies=>(terms, vals
                     }
                 }
                 speedComp!.spd[axis] = 0
-                continue
+                return
             }
-            const scheduledXmove = applySpeed.from([entity], {spd})
-            speedComp!.scheduledXmove = scheduledXmove
-            scheduler.schedule(60/Math.abs(spd[axis]), scheduledXmove)
         }
+        const scheduledAxisMove = applySpeed.from([entity], {spd, axis})
+        speedComp!.scheduledMove[axis] = scheduledAxisMove
+        scheduler.schedule(getDelay(spd[axis], axis), scheduledAxisMove)
+    }}
+    if (axis===undefined) {
+        const fastAxis = Math.abs(spd[0])>Math.abs(spd[1]) ? 0 : 1
+        applyToAxis(fastAxis)
+        const slowAxis = fastAxis===0 ? 1 : 0
+        if (spd[slowAxis]!==0) {
+            scheduler.schedule(getDelay(spd[slowAxis]*2, slowAxis), applySpeed.from([entity], {spd, axis: slowAxis}))
+        }
+    }else {
+        applyToAxis(axis)
     }
 })

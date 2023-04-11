@@ -26,6 +26,7 @@ export function debugWorld(sim: Simulation) {
     phys.place(sim.make('lamp'), { position: [7, 2], rotation: 0 });
     phys.place(sim.make('lamp'), { position: [6, 1], rotation: 0 });
     phys.place(sim.make('car'), { position: [6, 3], rotation: 0 });
+    phys.place(sim.make('gun'), { position: [5, 3], rotation: 0 })
     phys.place(sim.make('belt'), { position: [1, 1], rotation: 0 });
     phys.place(sim.make('belt'), { position: [2, 1], rotation: 0 });
     return sim

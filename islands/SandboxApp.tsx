@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import Simulation, { SimulationWrapper } from "../game/logic/simulation.ts";
 import { Model } from "modularMultiplayer";
 import { PhysicsSystem, SaturatedAction, SimulationPOV } from "../game/mod.ts";
-import { useGameState } from "../ui/hooks.ts";
+import { useDOMEvent, useGameState } from "../ui/hooks.ts";
 import { listenForMovementInput } from "../ui/inputs.ts";
 import { addUpdateListener, updater } from "../ui/screen-update.ts";
 import Ui from "../ui/Ui.tsx";
@@ -34,7 +34,7 @@ export default function SandboxApp() {
     const player = useGameState(()=>pov.current?.player, addUpdateListener)
     return <div>
         {player ? <div>
-            <Tiles pov={pov.current!}/>
+            <Tiles pov={pov.current!} dimensions={[40, 20]}/>
             <Ui pov={pov.current!}/>
         </div> : <Lobby onReady={onReady}/>}
     </div>

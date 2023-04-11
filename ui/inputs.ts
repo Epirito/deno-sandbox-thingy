@@ -1,19 +1,19 @@
-import { SimulationPOV, shoot, walk } from "../game/mod.ts"
+import { SimulationPOV, walk } from "../game/mod.ts"
 
 export function listenForMovementInput(pov: SimulationPOV) {
     document.addEventListener('keydown', (e) => {
         let rotation: number | undefined = undefined
         switch(e.key) {
-        case 'l':
+        case 'd':
             rotation = 0
         break
-        case 'i':
+        case 'w':
             rotation = 1
         break
-        case 'j':
+        case 'a':
             rotation = 2
         break
-        case 'k':
+        case 's':
             rotation = 3
         break
         }

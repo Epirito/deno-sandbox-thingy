@@ -9,7 +9,7 @@ import { SignalQueueComponent } from "./mux.ts";
 import { SpeedComponent } from "./speed-based-physics.ts";
 export class Entity implements IEntity {
     essence?: string;
-    useComp?: (user: Entity)=>SaturatedAction;
+    useComp?: (user: Entity, hoverPos: [number, number] | undefined)=>SaturatedAction;
     interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
     damageableComp?: DamageableComponent;
     examinableComp?: ExaminableComponent;
@@ -38,6 +38,7 @@ export class Entity implements IEntity {
     }
   }
 export interface IEntity {
+    readonly interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
     readonly essence?: string;
     readonly id: string;
     readonly size: number;

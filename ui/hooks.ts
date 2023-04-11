@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { Inputs, useEffect, useRef, useState } from "preact/hooks";
 
 export function useGameState<T>(getState: ()=>T, addUpdateListener: (listener: (e: Event)=>void)=>void, removeUpdateListener?: (listener: (e: Event)=>void)=>void) {
     const [state, setState] = useState(getState());
@@ -24,11 +24,11 @@ export function useFocusedRef() {
     }, []);
     return ref;
 }
-export function useDOMEvent<T extends keyof DocumentEventMap>(eventName: T, listener: (e: any) => void) {
+export function useDOMEvent<T extends keyof DocumentEventMap>(eventName: T, listener: (e: any) => void, inputs: Inputs) {
     useEffect(() => {
         document.addEventListener(eventName, listener);
         return () => {
             document.removeEventListener(eventName, listener);
         }
-    }, []);
+    }, inputs);
 }

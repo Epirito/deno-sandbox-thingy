@@ -1,4 +1,4 @@
-import { equals, rotatedBy, sum } from "../utils/vector.ts";
+import { equals, rotatedBy, scalarMult, sum } from "../utils/vector.ts";
 import { Action } from "../logic/action.ts";
 import {ContainerSystem, containerDependency} from "../logic/container.ts";
 import { Entity } from "../logic/entity.ts";
@@ -7,7 +7,7 @@ import { System } from "../logic/simulation.ts";
 import { ThingManager } from "../logic/thing-manager.ts";
 import { examinables } from "./examinables.ts";
 import { ActionRequester } from "../mod.ts";
-import { applySpeed } from "../logic/speed-based-physics.ts";
+import { SpeedComponent, applySpeed } from "../logic/speed-based-physics.ts";
 import { destroy, enter, projectileHit } from "./world-actions.ts";
 
 export const push = new Action(false,undefined, dependencies=>(terms, vals)=>{
@@ -30,15 +30,16 @@ export const interact = new Action(false,(terms) => `${terms[0]} interacts with 
     }
 );
 export const use = new Action(false, 
-    (terms) => `${terms[0]} uses ${terms[1]} on ${terms[2]}`, 
+    (terms) => `${terms[0]} uses item`, 
     (dependencies: Record<string, System>)=>(terms: Entity[], vals?: Record<string, unknown>)=>{
         const {container, actionRequester} = dependencies as {container: ContainerSystem, actionRequester: ActionRequester}
         const [user] = terms
         const item = container.getEquipped(user)
+        const hoverPos = vals?.['hoverPos'] as [number, number] | undefined
         if (item) {
             const action = item.useComp
             if (action) {
-                actionRequester.doAction(...action(user))
+                actionRequester.doAction(...action(user, hoverPos))
                 return
             }
             return "Nothing happens"
@@ -46,7 +47,6 @@ export const use = new Action(false,
         return "Nothing equipped"
     }
 )
-export const apply = new Action(false,(terms) => `${terms[0]} applies ${terms[1]} on ${terms[2]}`, ()=>()=>{});
 export const open = new Action(false,
     (terms) => `${terms[0]} opens ${terms[1]}`
 );
@@ -91,23 +91,29 @@ export const craft = new Action(false,
         }
     }
 )
-export const emitProjectile = new Action(true,
+export const emitProjectileTo = new Action(true,
     undefined,
     (dependencies: Record<string, unknown>)=>(terms: Entity[], vals?: Record<string, unknown>)=> {
         const {thingManager, phys, actionRequester} = dependencies as {thingManager: ThingManager, phys: PhysicsSystem, actionRequester: ActionRequester};
         const [actor] = terms;
-        const rotation = phys.rotation(actor)!
-        const bullet = thingManager.bareEntity(1)
-        bullet.speedComp = {spd: [0,0], onCollision: (hitPos, _)=>{
-            const target = phys.entitiesAt(hitPos).find(e=>e.blocksMovement)
-            if (target) {
-                return projectileHit.from([bullet, target], {dmg: 20})
-            }
-        }}
-        bullet.examinableComp = examinables.bullet
-        phys.place(bullet, {position: phys.position(actor)!, rotation})
-        actionRequester.doAction!(...applySpeed.from([bullet], {spd: rotatedBy([10,0], rotation)}))
+        const target = vals?.['hoverPos'] as [number, number] | undefined
+        if (target) {
+            const bullet = thingManager.bareEntity(1)
+            bullet.speedComp = new SpeedComponent((hitPos, _)=>{
+                const targetEntity = phys.entitiesAt(hitPos).find(e=>e.blocksMovement)
+                if (targetEntity) {
+                    return projectileHit.from([bullet, targetEntity], {dmg: 20})
+                }
+            })
+            bullet.examinableComp = examinables.bullet
+            phys.place(bullet, {position: phys.position(actor)!, rotation: phys.rotation(actor)!})
+            
+            const delta = sum(target, scalarMult(-1, phys.position(actor)!))
+            const normalizedDelta = scalarMult(1/Math.sqrt(delta[0]**2 + delta[1]**2), delta)
+            const SPD = 50
+            actionRequester.doAction!(...applySpeed.from([bullet], {spd: scalarMult(SPD, normalizedDelta)}))
+        }
     }
 )
-export const shoot = (user: Entity) => emitProjectile.from([user], {})
+export const shoot2 = (user: Entity, hoverPos: [number, number] | undefined) => emitProjectileTo.from([user], {hoverPos})
 export const drive = (user: Entity, entity: Entity)=> enter.from([user, entity], {})

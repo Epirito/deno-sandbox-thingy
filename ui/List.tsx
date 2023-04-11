@@ -32,7 +32,7 @@ export default function List(props: {
                 }
             }
         }
-    })
+    }, [])
     itemRefs.current = {}
     return (
         <div>

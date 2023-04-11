@@ -6,9 +6,10 @@ import { CraftingComponent, Recipe } from "../logic/crafting.ts";
 import { Scheduler } from "../logic/scheduler.ts";
 import { collision, onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
 import { System } from "../logic/simulation.ts";
-import { emitProjectile, examinables, shoot } from "../mod.ts";
+import { examinables } from "../mod.ts";
 import { ContainerComponent, HandComponent } from "../logic/container.ts";
-import { drive } from "./actions.ts";
+import { drive, shoot2 } from "./actions.ts";
+import { SpeedComponent } from "../logic/speed-based-physics.ts";
 export type EntityFactory = (dependencies: Record<string, unknown>, bare: Entity)=>Entity
 export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)=>Entity} = {
     man: (_, bare: Entity)=> {
@@ -22,7 +23,7 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
     gun: (_, bare: Entity)=> {
         const gun = bare;
         gun.examinableComp = examinables.gun;
-        gun.useComp = shoot;
+        gun.useComp = shoot2;
         return gun;
     },
     car: (_, bare: Entity)=> {
@@ -30,7 +31,7 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
         bare.size = 30;
         bare.blocksMovement = true;
         bare.damageableComp = {integrity: 100, total: 100}
-        bare.speedComp = {spd: [0,0], onCollision: (hitPos: [number, number], axis: 0|1)=>collision.from([bare], {hitPos, axis})}
+        bare.speedComp = new SpeedComponent((hitPos: [number, number], axis: 0|1)=>collision.from([bare], {hitPos, axis}))
         bare.containerComp = new ContainerComponent(1);
         bare.interactComp = drive;
         return bare;

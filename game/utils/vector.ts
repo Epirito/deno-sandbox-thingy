@@ -3,6 +3,10 @@ export function sum([x1, y1]: [number, number], [x2, y2]: [number, number])
     : [number, number] {
     return [x1 + x2, y1 + y2];
 }
+export function scalarMult(c: number, [x, y]: [number, number])
+    : [number, number] {
+    return [x * c, y * c];
+}
 export function equals([x1, y1]: [number, number], [x2, y2]: [number, number])
     : boolean {
     return x1 === x2 && y1 === y2;
