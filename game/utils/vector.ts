@@ -1,3 +1,4 @@
+import { WORLDSIZE } from "../logic/constants.ts";
 import mod from "./modulus.ts";
 export function sum([x1, y1]: [number, number], [x2, y2]: [number, number])
     : [number, number] {
@@ -28,4 +29,7 @@ export function absPosition(
     attachedVector: [number, number], position: [number, number], rotation: number
 ): [number, number] {
     return sum(position, rotatedBy(attachedVector, rotation));
+}
+export function neighbors(idx: number) {
+    return [idx+1, idx+WORLDSIZE, idx-1, idx-WORLDSIZE].filter(x=>x>=0 && x<WORLDSIZE**2)
 }

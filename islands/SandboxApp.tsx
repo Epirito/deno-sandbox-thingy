@@ -1,4 +1,4 @@
-import { BasicModel, LockstepModel } from "modularMultiplayer";
+import { BasicModel, LockstepClient } from "modularMultiplayer";
 import { debugWorld, spawnPlayers } from "../game/stuff/world-gen.ts";
 import { useEffect, useRef, useState } from "preact/hooks";
 import Simulation, { SimulationWrapper } from "../game/logic/simulation.ts";
@@ -14,13 +14,13 @@ import Lobby from "../ui/Lobby.tsx";
 export default function SandboxApp() {
     const [screen, setScreen] = useState(undefined as string[][] | undefined)
     const pov = useRef(undefined as SimulationPOV | undefined)
-    const lockstep = useRef(undefined as LockstepModel<SaturatedAction, SimulationWrapper> | undefined)
+    const lockstep = useRef(undefined as LockstepClient<SaturatedAction, SimulationWrapper> | undefined)
     const onReady = ()=>{
         // lazy load the lockstep model
         lockstep.current!.ready()
     }
     useEffect(()=>{
-        lockstep.current = new LockstepModel((nPlayers)=>{
+        lockstep.current = new LockstepClient((nPlayers)=>{
             const [game, ids] = spawnPlayers(debugWorld(Simulation.build()), nPlayers, [1,1])
             return new BasicModel(new SimulationWrapper(game, {playerEntityIds: ids}), nPlayers) as Model<SaturatedAction, SimulationWrapper>
         }, (_)=>{

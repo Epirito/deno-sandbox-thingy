@@ -6,6 +6,7 @@ import { CopiableEventTarget, CopiableEventTargetEvent } from "../utils/custom-e
 import { ActionRequester } from "./trivial-systems.ts";
 import { ThingManager } from "./thing-manager.ts";
 import { SaturatedAction } from "./action.ts";
+import { WORLDSIZE } from "./constants.ts";
 
 class PhysicsState {
   constructor(public position: [number, number], public rotation: number) {}
@@ -52,7 +53,7 @@ export class PhysicsSystem implements IPhysicsSystem {
     return sum(this.facing(entity), this.position(entity)!);
   }
   isBlocked(position: [number, number]) {
-    return this.entitiesByPosition.get(JSON.stringify(position))?.some(x=>x.blocksMovement) ?? false
+    return position.some(value=>value<0 || value>=WORLDSIZE) || (this.entitiesByPosition.get(JSON.stringify(position))?.some(x=>x.blocksMovement) ?? false)
   }
   entitiesAt(position: [number, number]) {
     return this.entitiesByPosition.get(JSON.stringify(position)) ?? [];
@@ -98,8 +99,10 @@ export class PhysicsSystem implements IPhysicsSystem {
     this.placedAt.dispatch(newPosJSON, new EntityEvent(entity));
   }
   place(entity: Entity, options: {position?: [number, number], rotation?: number}) {
-    // to do: make it private and hide it behind a method that checks for collisions
     if (options.position===undefined) {
+      if (options.rotation===undefined) {
+        throw new Error("Either position or rotation must be specified")
+      }
       options.position = this.stateByEntity.get(entity)!.position;
     }
     if (options.rotation===undefined) {

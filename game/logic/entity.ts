@@ -7,8 +7,9 @@ import { CraftingComponent } from "./crafting.ts";
 import { SaturatedAction } from "./action.ts";
 import { SignalQueueComponent } from "./mux.ts";
 import { SpeedComponent } from "./speed-based-physics.ts";
+import { IAgent } from "./ai.ts";
 export class Entity implements IEntity {
-    essence?: string;
+    essence?: string; 
     useComp?: (user: Entity, hoverPos: [number, number] | undefined)=>SaturatedAction;
     interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
     damageableComp?: DamageableComponent;
@@ -23,9 +24,11 @@ export class Entity implements IEntity {
     timeOut?: SaturatedAction;
     signalQueueComp?: SignalQueueComponent
     speedComp?: SpeedComponent
+    agentComp?: IAgent
     constructor(readonly id: string, public size: number, public blocksMovement = false) {
     }
     copy() {
+      throw new Error("incomplete implementation")
       const newEntity = new Entity(this.id, this.size, this.blocksMovement)
       newEntity.essence = this.essence
       newEntity.examinableComp = this.examinableComp

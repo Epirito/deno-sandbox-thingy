@@ -1,0 +1,1 @@
+export const WORLDSIZE = 100

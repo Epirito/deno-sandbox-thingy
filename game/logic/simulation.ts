@@ -29,6 +29,7 @@ type PlayerData = {
     listFront: boolean;
     openContainer?: IEntity
 }
+
 export class SimulationWrapper implements Game<SaturatedAction, SimulationWrapper> {
     private playersByPlayerId: Map<number, PlayerData> = new Map();
     private playersByEntityId: Map<string, PlayerData> = new Map();

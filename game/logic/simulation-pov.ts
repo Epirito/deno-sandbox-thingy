@@ -1,13 +1,36 @@
-import { LockstepModel } from "modularMultiplayer"
-import { SimulationWrapper } from "../mod.ts";
+import {Client} from "modularMultiplayer"
+import { IEntity, SimulationWrapper, System } from "../mod.ts";
 import { SaturatedAction } from "./action.ts";
 import { IContainerSystem } from "./container.ts";
 import { IPhysicsSystem } from "./physics.ts";
 import { IProngSystem } from "./prong.ts";
 import { ThingManager } from "./thing-manager.ts";
-export class SimulationPOV {
+import { ActionRequester } from "./trivial-systems.ts";
+export interface ISimulationPOV {
+    get phys(): IPhysicsSystem;
+    get electricity(): IProngSystem;
+    get container(): IContainerSystem;
+    get player(): IEntity | undefined;
+}
+export class NPCSimulationPOV implements ISimulationPOV{
+    constructor(private dependencies: Record<string, System>, readonly entityId: string) {
+    }
+    get player() {
+        return (this.dependencies['thingManager'] as ThingManager).byId(this.entityId)
+    }
+    get phys(): IPhysicsSystem {
+        return (this.dependencies['phys'] as IPhysicsSystem)
+    }
+    get container(): IContainerSystem {
+        return (this.dependencies['container'] as IContainerSystem)
+    }
+    get electricity(): IProngSystem {
+        return (this.dependencies['electricity'] as IProngSystem)
+    }
+}
+export class SimulationPOV implements ISimulationPOV{
     
-    constructor(private lockstep: LockstepModel<SaturatedAction, SimulationWrapper>, public playerId?: string) {
+    constructor(private lockstep: Client<SaturatedAction, SimulationWrapper>, public playerId?: string) {
     }
     get phys(): IPhysicsSystem {
         return (this.lockstep.renderable.sim.systems['phys'] as IPhysicsSystem)

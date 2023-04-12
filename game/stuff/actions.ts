@@ -9,6 +9,8 @@ import { examinables } from "./examinables.ts";
 import { ActionRequester } from "../mod.ts";
 import { SpeedComponent, applySpeed } from "../logic/speed-based-physics.ts";
 import { destroy, enter, projectileHit } from "./world-actions.ts";
+import { TerrainSystem } from "../logic/terrain.ts";
+import { terrainSpecs } from "./terrain-specs.ts";
 
 export const push = new Action(false,undefined, dependencies=>(terms, vals)=>{
     const {phys} = dependencies as {phys: PhysicsSystem}
@@ -115,5 +117,21 @@ export const emitProjectileTo = new Action(true,
         }
     }
 )
+export const axeCutAction = new Action(false, undefined, (dependencies: Record<string, unknown>)=>(terms: Entity[], vals?: Record<string, unknown>)=> {
+    const {phys, terrain} = dependencies as {phys: PhysicsSystem, terrain: TerrainSystem};
+    const [actor] = terms;
+    //const hoverPos = vals?.['hoverPos'] as [number, number] | undefined
+    const targetPos = phys.inFrontOf(actor)!
+    //unimplemented
+})
+export const pickStrikeAction = new Action(false, undefined, (dependencies: Record<string, unknown>)=>(terms: Entity[], vals?: Record<string, unknown>)=> {
+    const {phys, terrain} = dependencies as {phys: PhysicsSystem, terrain: TerrainSystem};
+    const [actor] = terms;
+    const pos = phys.position(actor)!
+    if (terrain.get(pos)!.harvesting['pick']) {
+        terrain.set(pos, terrainSpecs.dirt)
+    }
+})
 export const shoot2 = (user: Entity, hoverPos: [number, number] | undefined) => emitProjectileTo.from([user], {hoverPos})
+export const axeCut = (user: Entity, hoverPos: [number, number] | undefined) => destroy.from([user], {hoverPos})
 export const drive = (user: Entity, entity: Entity)=> enter.from([user, entity], {})

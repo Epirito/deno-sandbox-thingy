@@ -12,4 +12,5 @@ export const examinables: Record<string, ExaminableComponent> = {
     bullet: new PlainExaminableComponent('bullet', ''),
     gun: new PlainExaminableComponent('gun', ''),
     car: new PlainExaminableComponent('car', ''),
+    zombie: new PlainExaminableComponent('zombie', ''),
 }

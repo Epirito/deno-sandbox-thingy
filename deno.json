@@ -1,7 +1,8 @@
 {
   "tasks": {
     "start": "deno run -A --watch=static/,routes/ dev.ts",
-    "server": "deno run --allow-net ./server/main.ts"
+    "server": "deno run --allow-net ./server/main.ts",
+    "reload": "deno cache --reload https://raw.githubusercontent.com/Epirito/multiplayer/main/client/mod.ts"
   },
   "importMap": "./import_map.json",
   "compilerOptions": {

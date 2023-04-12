@@ -1,15 +1,15 @@
 import {useState, useRef, useEffect} from "preact/hooks"
 //import { TicTacToe } from "../multiplayer/tictactoe-example.ts";
-//import { LockstepModel } from "../multiplayer/lockstep-model.ts";
-import {LockstepModel, TicTacToe, BasicModel } from "modularMultiplayer"
+//import { LockstepClient } from "../multiplayer/lockstep-model.ts";
+import {LockstepClient, TicTacToe, BasicModel } from "modularMultiplayer"
 import { useGameState } from "../ui/hooks.ts"
 export default function TicTacToePage() {
     const [board, setBoard] = useState(undefined as string[][] | undefined)
     const play = useRef(undefined as ((action: number)=>void) | undefined)
-    const lockstepModel = useRef(undefined as LockstepModel<number, TicTacToe> | undefined)
+    const lockstepModel = useRef(undefined as LockstepClient<number, TicTacToe> | undefined)
     
     useEffect(()=>{
-        lockstepModel.current = new LockstepModel<number, TicTacToe>(
+        lockstepModel.current = new LockstepClient<number, TicTacToe>(
             (nPlayers)=>new BasicModel(new TicTacToe(),nPlayers),
             (_) => {
                 console.log(lockstepModel.current?.renderable.state.board)
