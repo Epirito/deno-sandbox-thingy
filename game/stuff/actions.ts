@@ -134,4 +134,6 @@ export const pickStrikeAction = new Action(false, undefined, (dependencies: Reco
 })
 export const shoot2 = (user: Entity, hoverPos: [number, number] | undefined) => emitProjectileTo.from([user], {hoverPos})
 export const axeCut = (user: Entity, hoverPos: [number, number] | undefined) => destroy.from([user], {hoverPos})
+export const pickStrike = (user: Entity, hoverPos: [number, number] | undefined) => pickStrikeAction.from([user], {hoverPos})
+
 export const drive = (user: Entity, entity: Entity)=> enter.from([user, entity], {})

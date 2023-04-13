@@ -4,10 +4,11 @@ import { ContainerComponent, HandComponent, CredentialComponent } from "./contai
 import { ExaminableComponent } from "./examinable.ts";
 import { LightSourceComponent } from "./lighting.ts";
 import { CraftingComponent } from "./crafting.ts";
-import { SaturatedAction } from "./action.ts";
+import { Action, SaturatedAction } from "./action.ts";
 import { SignalQueueComponent } from "./mux.ts";
 import { SpeedComponent } from "./speed-based-physics.ts";
 import { IAgent } from "./ai.ts";
+import { System } from "../mod.ts";
 export class Entity implements IEntity {
     essence?: string; 
     useComp?: (user: Entity, hoverPos: [number, number] | undefined)=>SaturatedAction;
@@ -25,6 +26,8 @@ export class Entity implements IEntity {
     signalQueueComp?: SignalQueueComponent
     speedComp?: SpeedComponent
     agentComp?: IAgent
+    touchComp?: Action
+    flowFieldComp?: string
     constructor(readonly id: string, public size: number, public blocksMovement = false) {
     }
     copy() {

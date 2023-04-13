@@ -1,4 +1,5 @@
 import { ExaminableComponent, IEntity, IPhysicsSystem, examinables, Entity, SimulationPOV} from "game";
+import { TerrainSpec } from "../game/logic/terrain.ts";
 const glyphs: Map<ExaminableComponent | undefined, (entity: IEntity, phys?: IPhysicsSystem)=>string> = new Map()
 const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     craftingTable: ['🛠️'],
@@ -22,15 +23,39 @@ const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     palmTree: ['🌴'],
     cactus: ['🌵'],
     herb: ['🌿'],
-    crop: ['🌾'],
-    greenCrop: ['🌱'],
-    field: ['🟫'],
-    shallowWater: ['🟦'],
-    coal: ['◼️'],
-    sand: ['🟨'],
     pick: ['⛏️'],
     axe: ['🪓'],
+    trap: ['🪤'],
+    rabbit: ['🐇'],
+    wolf: ['🐺'],
+    bear: ['🐻'],
+    deer: ['🦌'],
+    cow: ['🐮'],
+    sheep: ['🐑'],
+    pig: ['🐷'],
+    chicken: ['🐔'],
+    fish: ['🐟'],
+    crab: ['🦀'],
+    lobster: ['🦞'],
+    shrimp: ['🦐'],
+    snail: ['🐌'],
+    turtle: ['🐢'],
+    frog: ['🐸'],
+    snake: ['🐍'],
+    lizard: ['🦎'],
+    spider: ['🕷️'],
+    scorpion: ['🦂'],
+    bee: ['🐝'],
+    wasp: ['🐝'],
+    ant: ['🐜'],
+    butterfly: ['🦋'],
+    bat: ['🦇'],
+    bird: ['🐦'],
+    parrot: ['🦜'],
+    owl: ['🦉'],
+    eagle: ['🦅'],
 }
+const terrainGlyphs = ['🟫', '🟨', '🟦', '🟦', '🟫', '🌾', '🌱', '◼️', '◼️']
 for(const glyph in rawGlyphs) {
     const val = rawGlyphs[glyph]
     if ("on" in val) {
@@ -49,6 +74,9 @@ for(const glyph in rawGlyphs) {
 }
 export function getGlyph(entity: IEntity, pov: SimulationPOV):string {
     return glyphs.get(entity.examinableComp)!(entity, pov.phys)
+}
+export function getTerrainGlyph(terrain: TerrainSpec) {
+    return (terrainGlyphs[terrain.iota] as string)
 }
 const dummyEntity =  new Entity('',1)
 export function getStaticGlyph(examinable: ExaminableComponent) {

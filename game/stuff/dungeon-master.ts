@@ -2,7 +2,7 @@ import { walk } from "./actions.ts";
 import { Entity } from "../logic/entity.ts";
 import {SaturatedAction } from "../logic/action.ts";
 import {SimulationWrapper } from "../logic/simulation.ts";
-import { ISimulation, NPCSimulationPOV } from "../mod.ts";
+import { ISimulation, NPCSimulationPOV, PhysicsSystem } from "../mod.ts";
 import { ThingManager } from "../logic/thing-manager.ts";
 import { WORLDSIZE } from "../logic/constants.ts";
 import{neighbors} from "../utils/vector.ts"
@@ -56,20 +56,27 @@ export class SingleplayerDungeonMasterClient implements DungeonMasterClient {
     }
 }
 export class DungeonMaster {
-    huntingFlowField = new FlowField(10)
+    private flowFields: Record<string, FlowField> = {
+        human: new FlowField(10)
+    }
+    flowField = (name: string, pos: [number,number]) => {
+        return this.flowFields[name].array[pos[1]*WORLDSIZE+pos[0]]
+    }
     constructor(private client: DungeonMasterClient) {
     }
     update() {
         (this.client.world.sim.systems['thingManager'] as ThingManager).entityById.forEach(npc=>{
-            
+            if ((this.client.world.sim.systems['phys'] as PhysicsSystem).position(npc)===undefined) {
+                return
+            }
             const npcPov = new NPCSimulationPOV(this.client.world.sim.systems, npc.id)
             if (npc.essence==='man') {
-                this.huntingFlowField.updateAround(npcPov.phys.position(npc)!)
+                this.flowFields.human.updateAround(npcPov.phys.position(npc)!)
             }
             if (!npc.agentComp) {
                 return
             }
-            const action = npc.agentComp.getAction(npcPov, {flowField: this.huntingFlowField})
+            const action = npc.agentComp.getAction(npcPov, {flowField: this.flowField})
             if (action===null) {
                 return
             }

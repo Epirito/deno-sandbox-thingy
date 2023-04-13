@@ -21,7 +21,6 @@ export function ListGameItems({title, items, pov}: {title: string | undefined, i
                 e: eAction,
                 q: (entity)=>{
                     if (pov.container.getEquipped(pov.player!)) {
-                        pov.playerAction(drop.iota, [])
                         return
                     }
                     if (pov.openContainer) {

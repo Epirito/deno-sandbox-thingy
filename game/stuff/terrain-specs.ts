@@ -10,6 +10,6 @@ export const terrainSpecs = {
     field: new TerrainSpec("field"),
     crops: new TerrainSpec("crops"),
     youngCrops: new TerrainSpec("young crops"),
-    coalOre: new TerrainSpec("coal ore"),
-    ironOre: new TerrainSpec("iron ore"),
+    coalOre: new TerrainSpec("coal ore", {pick: 1}),
+    ironOre: new TerrainSpec("iron ore", {pick: 1}),
 }

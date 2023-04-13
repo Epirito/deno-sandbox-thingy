@@ -45,22 +45,28 @@ export class WanderAI implements IAgent {
     }
 }
 export class HuntAI implements IAgent {
-    getAction(pov: ISimulationPOV, dmCompute: any): SaturatedAction | null {
+    constructor(public flowField: string, public flee=false) {}
+    getAction(pov: ISimulationPOV, dmCompute: {flowField: (field: string, pos: [number,number])=>number}): SaturatedAction | null {
         const pos = pov.phys.position(pov.player!)!
         function idx(pos: [number, number]) {return pos[0] + pos[1] * WORLDSIZE}
         const east = [1,0] as [number, number]
         const options: {rotation: number, value: number}[] = []
         for(let rotation = 0; rotation < 4; rotation++) {
             const vec = rotatedBy(east, rotation)
-            const destinationIdx = idx(sum(pos, vec))
-            if (destinationIdx >= 0 && destinationIdx < WORLDSIZE**2) {
-                const value = dmCompute.flowField.array[destinationIdx]
+            const destination = sum(pos, vec)
+            const value = dmCompute.flowField(this.flowField, destination)
+            if (value!==undefined) {
                 options.push({rotation, value})
             }
         }
-        const bestOption = options.reduce((a, b)=>a.value < b.value ? a : b)
-        if (bestOption.value < dmCompute.flowField.array[idx(pos)]) {
+        if (this.flee) {
+            const bestOption = options.reduce((a, b)=>a.value > b.value ? a : b)
             return walk.from([], {rotation: bestOption.rotation})
+        }else {
+            const bestOption = options.reduce((a, b)=>a.value < b.value ? a : b)
+            if (bestOption.value < dmCompute.flowField(this.flowField, pos)) {
+                return walk.from([], {rotation: bestOption.rotation})
+            }
         }
         return null
     }

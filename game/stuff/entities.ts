@@ -8,9 +8,10 @@ import { collision, onPlacedOnBelt, onPressureListenerPlaced, onPressureListener
 import { System } from "../logic/simulation.ts";
 import { axeCut, axeCutAction, examinables } from "../mod.ts";
 import { ContainerComponent, HandComponent } from "../logic/container.ts";
-import { drive, shoot2 } from "./actions.ts";
+import { drive, pickStrike, shoot2 } from "./actions.ts";
 import { SpeedComponent } from "../logic/speed-based-physics.ts";
 import { HuntAI, WanderAI } from "./agents.ts";
+import { touchSpike } from "./world-gen.ts";
 export type EntityFactory = (dependencies: Record<string, unknown>, bare: Entity)=>Entity
 export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)=>Entity} = {
     zombie: (_, bare: Entity)=> {
@@ -18,11 +19,45 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
         bare.examinableComp = examinables.zombie
         bare.damageableComp = {integrity: 20, total: 20}
         bare.blocksMovement = true;
-        bare.agentComp = new HuntAI();
+        bare.agentComp = new HuntAI('human');
         return bare;
+    },
+    rabbit: (_, bare: Entity)=> {
+        bare.size = 2;
+        bare.flowFieldComp = 'smallAnimal'
+        bare.examinableComp = examinables.rabbit
+        bare.damageableComp = {integrity: 4, total: 4}
+        bare.blocksMovement = true;
+        bare.agentComp = new HuntAI('human', true);
+        return bare
+    },
+    chicken: (_, bare: Entity)=> {
+        bare.size = 3;
+        bare.flowFieldComp = 'smallAnimal'
+        bare.examinableComp = examinables.chicken
+        bare.damageableComp = {integrity: 4, total: 4}
+        bare.blocksMovement = true;
+        bare.agentComp = new HuntAI('predator', true);
+        return bare
+    },
+    wolf: (_, bare: Entity)=> {
+        bare.size = 4;
+        bare.flowFieldComp = 'predator'
+        bare.examinableComp = examinables.wolf
+        bare.damageableComp = {integrity: 10, total: 10}
+        bare.blocksMovement = true;
+        bare.agentComp = new HuntAI('smallAnimal');
+        return bare
+    },
+    cactus: (_, bare: Entity)=> {
+        bare.size = 4;
+        bare.examinableComp = examinables.cactus
+        bare.touchComp = touchSpike;
+        return bare
     },
     man: (_, bare: Entity)=> {
         bare.size = 6;
+        bare.flowFieldComp = 'human';
         bare.examinableComp = examinables.man
         bare.handComp = new HandComponent(5);
         bare.damageableComp = {integrity: 20, total: 20}
@@ -39,6 +74,11 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
         bare.examinableComp = examinables.axe;
         bare.useComp = axeCut;
         return bare;
+    },
+    pick: (_, bare: Entity)=> {
+        bare.useComp = pickStrike
+        bare.examinableComp = examinables.pick;
+        return bare
     },
     car: (_, bare: Entity)=> {
         bare.examinableComp = examinables.car;

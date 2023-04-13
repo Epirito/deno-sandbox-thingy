@@ -34,7 +34,9 @@ export class PhysicsSystem implements IPhysicsSystem {
   private unplacedFrom: CopiableEventTarget<EntityEvent>;
   private stateByEntity = new Map<Entity, PhysicsState>();
   private entitiesByPosition = new MultiMap<string, Entity>();
+  private actionRequester: ActionRequester
   constructor({actionRequester}: Record<string, System>) {
+    this.actionRequester = actionRequester as ActionRequester
     this.unplaced = new CopiableEventTarget<VoidEvent>(actionRequester as ActionRequester);
     this.placed = new CopiableEventTarget<VoidEvent>(actionRequester as ActionRequester);
     this.placedAt = new CopiableEventTarget<EntityEvent>(actionRequester as ActionRequester);
@@ -57,6 +59,10 @@ export class PhysicsSystem implements IPhysicsSystem {
   }
   entitiesAt(position: [number, number]) {
     return this.entitiesByPosition.get(JSON.stringify(position)) ?? [];
+  }
+  topEntityAt(position: [number, number]): Entity | undefined {
+    const at = this.entitiesAt(position)
+    return at[at.length-1];
   }
   onUnplaced(entity: Entity, action: SaturatedAction) {
     this.unplaced.addEventListener(entity.id, action);
@@ -93,6 +99,15 @@ export class PhysicsSystem implements IPhysicsSystem {
   }
   private _place(entity: Entity, position: [number, number], rotation: number) {
     const newPosJSON = JSON.stringify(position);
+    const top = this.topEntityAt(position);
+    if (top) {
+      if (top.touchComp) {
+        this.actionRequester.doAction(...top.touchComp.from([top, entity]))
+      }
+      if (entity.touchComp) {
+        this.actionRequester.doAction(...entity.touchComp.from([entity, top]))
+      }
+    }
     this.stateByEntity.set(entity, new PhysicsState(position, rotation));
     this.entitiesByPosition.set(newPosJSON, entity)
     this.placed.dispatch(entity.id, voidEvent);

@@ -1,9 +1,14 @@
-import { SimulationPOV, walk } from "../game/mod.ts"
+import { SimulationPOV, drop, walk } from "../game/mod.ts"
 
 export function listenForMovementInput(pov: SimulationPOV) {
     document.addEventListener('keydown', (e) => {
         let rotation: number | undefined = undefined
         switch(e.key) {
+        case 'q':
+            if (pov.container.getEquipped(pov.player!)) {
+                pov.playerAction(...drop.from([]))
+            }
+        break
         case 'd':
             rotation = 0
         break

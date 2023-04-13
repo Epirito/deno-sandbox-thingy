@@ -6,6 +6,7 @@ import { IPhysicsSystem } from "./physics.ts";
 import { IProngSystem } from "./prong.ts";
 import { ThingManager } from "./thing-manager.ts";
 import { ActionRequester } from "./trivial-systems.ts";
+import { TerrainSpec, TerrainSystem } from "./terrain.ts";
 export interface ISimulationPOV {
     get phys(): IPhysicsSystem;
     get electricity(): IProngSystem;
@@ -31,6 +32,9 @@ export class NPCSimulationPOV implements ISimulationPOV{
 export class SimulationPOV implements ISimulationPOV{
     
     constructor(private lockstep: Client<SaturatedAction, SimulationWrapper>, public playerId?: string) {
+    }
+    get terrain(): TerrainSystem {
+        return (this.lockstep.renderable.sim.systems['terrain'] as TerrainSystem)
     }
     get phys(): IPhysicsSystem {
         return (this.lockstep.renderable.sim.systems['phys'] as IPhysicsSystem)

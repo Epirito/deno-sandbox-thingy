@@ -12,6 +12,7 @@ import { PhysicsSystem } from "./physics.ts";
 import { ProngSystem } from "./prong.ts";
 import { ContainerSystem } from "./container.ts";
 import { Scheduler } from "./scheduler.ts";
+import { TerrainSystem } from "./terrain.ts";
 export interface System {
     cleanUpDestroyed?(entity: Entity): void;
     copy(dependencies?: Record<string, System>): System
@@ -99,7 +100,7 @@ export class SimulationWrapper implements Game<SaturatedAction, SimulationWrappe
 }
 export default class Simulation implements ISimulation {
     static hierarchy = [
-        ['clock', 'actionRequester', 'thingManager'],
+        ['clock', 'actionRequester', 'thingManager', 'terrain'],
         ['phys', 'scheduler'],
         ['container', 'electricity']
     ]
@@ -111,6 +112,7 @@ export default class Simulation implements ISimulation {
         scheduler: (deps)=> new Scheduler(deps),
         container: (deps)=> new ContainerSystem(deps),
         electricity: (deps)=> new ProngSystem(deps),
+        terrain: _=>new TerrainSystem()
     }
     /** do not construct directly with new Simulation(...). use Simulation.build() instead*/
     constructor(readonly systems: {[x: string]: System}, public onActionDone?: (data: {action: Action, terms: Entity[]})=>void, public onActionFailed?: (data: {action: Action, terms: (Entity | undefined)[], error: string})=>void) {
