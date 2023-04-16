@@ -13,6 +13,7 @@ import { ProngSystem } from "./prong.ts";
 import { ContainerSystem } from "./container.ts";
 import { Scheduler } from "./scheduler.ts";
 import { TerrainSystem } from "./terrain.ts";
+import { enter } from "../stuff/world-actions.ts";
 export interface System {
     cleanUpDestroyed?(entity: Entity): void;
     copy(dependencies?: Record<string, System>): System
@@ -77,7 +78,7 @@ export class SimulationWrapper implements Game<SaturatedAction, SimulationWrappe
             }
             playerData.openContainer = undefined
             if (action===interact) {
-                if (terms[1].interactComp===drive) {
+                if (terms[1].interactComp===enter) {
                     playerData.entityId = terms[1].id
                     this.playersByEntityId.set(terms[1].id, playerData)
                     this.playersByEntityId.delete(terms[0].id)

@@ -13,7 +13,7 @@ import { FlatMeleeSpec } from "./melee.ts";
 export class Entity implements IEntity {
     essence?: string; 
     useComp?: Action;
-    interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
+    interactComp?: Action;
     damageableComp?: DamageableComponent;
     examinableComp?: ExaminableComponent;
     prongedComp?: ProngedComponent;
@@ -52,7 +52,7 @@ export class Entity implements IEntity {
     }
   }
 export interface IEntity {
-    readonly interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
+    readonly interactComp?: Action;
     readonly essence?: string;
     readonly id: string;
     readonly size: number;

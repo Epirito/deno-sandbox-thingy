@@ -29,7 +29,7 @@ export const interact = new Action(false,(terms) => `${terms[0]} interacts with 
     (deps)=>(terms, vals)=>{
         const {actionRequester} = deps as {actionRequester: ActionRequester}
         const [user, entity] = terms;
-        actionRequester.doAction(...entity.interactComp!(user, entity))
+        actionRequester.doAction(...entity.interactComp!.from([user, entity]))
     }
 );
 export const use = new Action(false, 

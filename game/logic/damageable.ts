@@ -1,7 +1,5 @@
 import { Entity } from "../mod.ts";
 import { destroy } from "../stuff/world-actions.ts";
-import { Scheduler } from "./scheduler.ts";
-import { ThingManager } from "./thing-manager.ts";
 import { ActionRequester } from "./trivial-systems.ts";
 
 export type DamageableComponent = {

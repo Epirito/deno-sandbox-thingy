@@ -4,7 +4,7 @@ import { ProngSystem, ProngedComponent } from "../logic/prong.ts";
 import { lampSpec, inputSpec, wireSpec, bimuxSpec } from "./pronged-specs.ts";
 import { CraftingComponent, Recipe } from "../logic/crafting.ts";
 import { Scheduler } from "../logic/scheduler.ts";
-import { collision, eatGrass, onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
+import { collision, eatGrass, enter, onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
 import { System } from "../logic/simulation.ts";
 import { axeCutAction, eat, emitProjectileTo, examinables, pickStrikeAction } from "../mod.ts";
 import { ContainerComponent, HandComponent } from "../logic/container.ts";
@@ -103,7 +103,7 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
         bare.damageableComp = {integrity: 100, total: 100}
         bare.speedComp = new SpeedComponent((hitPos: [number, number], axis: 0|1)=>collision.from([bare], {hitPos, axis}))
         bare.containerComp = new ContainerComponent(1);
-        bare.interactComp = drive;
+        bare.interactComp = enter;
         return bare;
     },
     chest: (_, bare: Entity)=> {
