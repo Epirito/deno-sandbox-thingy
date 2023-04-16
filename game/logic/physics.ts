@@ -60,6 +60,9 @@ export class PhysicsSystem implements IPhysicsSystem {
   entitiesAt(position: [number, number]) {
     return this.entitiesByPosition.get(JSON.stringify(position)) ?? [];
   }
+  blockingEntitiesAt(position: [number, number]) {
+    return this.entitiesAt(position).filter(x=>x.blocksMovement);
+  }
   topEntityAt(position: [number, number]): Entity | undefined {
     const at = this.entitiesAt(position)
     return at[at.length-1];
@@ -130,6 +133,14 @@ export class PhysicsSystem implements IPhysicsSystem {
   }
   placeIfNotBlocked(entity: Entity, position: [number, number]) {
     if (this.isBlocked(position)) {
+      this.blockingEntitiesAt(position).forEach(blocker=>{
+        if (entity.touchComp) {
+          this.actionRequester.doAction(...entity.touchComp.from([entity, blocker]))
+        }
+        if (blocker.touchComp) {
+          this.actionRequester.doAction(...blocker.touchComp.from([blocker, entity]))
+        }
+      })
       return false
     }
     this.place(entity, {position});

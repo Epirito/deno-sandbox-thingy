@@ -39,11 +39,14 @@ export function debugWorld(sim: Simulation) {
     phys.place(sim.make('zombie'), { position: [1, 5], rotation: 0 });
     phys.place(sim.make('cactus'), { position: [8, 8], rotation: 0 });
     phys.place(sim.make('rabbit'), { position: [8, 9], rotation: 0 });
+    phys.place(sim.make('wolf'), { position: [8, 15], rotation: 0 });
+    phys.place(sim.make('chicken'), { position: [9, 9], rotation: 0 });
+    phys.place(sim.make('apple'), { position: [8, 10], rotation: 0 });
     return sim
 }
 const SPIKEDMG = 2
 export const touchSpike = new Action(true,undefined, deps => (terms, _) => {
     const {actionRequester} = deps as {actionRequester: ActionRequester}
-    const [_spiked, entity] = terms
+    const [_spiked, entity, entity2] = terms
     damage(actionRequester, entity, SPIKEDMG)
 })

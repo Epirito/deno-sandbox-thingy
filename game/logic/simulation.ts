@@ -30,7 +30,16 @@ type PlayerData = {
     listFront: boolean;
     openContainer?: IEntity
 }
-
+export type Dependencies = {
+    clock: Clock,
+    actionRequester: ActionRequester,
+    scheduler: Scheduler,
+    thingManager: ThingManager,
+    phys: PhysicsSystem,
+    electricity: ProngSystem,
+    container: ContainerSystem,
+    terrain: TerrainSystem
+}
 export class SimulationWrapper implements Game<SaturatedAction, SimulationWrapper> {
     private playersByPlayerId: Map<number, PlayerData> = new Map();
     private playersByEntityId: Map<string, PlayerData> = new Map();

@@ -8,6 +8,13 @@ export type DamageableComponent = {
   integrity: number,
   total: number
 }
+export function heal(entity: Entity, amt: number) {
+  if (!entity.damageableComp) return;
+  entity.damageableComp.integrity += amt;
+  if(entity.damageableComp!.integrity > entity.damageableComp!.total) {
+    entity.damageableComp!.integrity = entity.damageableComp!.total;
+  }
+}
 export function damage(requester: ActionRequester, entity: Entity, dmg: number) {
   if (!entity.damageableComp) return;
   

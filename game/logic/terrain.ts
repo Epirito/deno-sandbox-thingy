@@ -17,6 +17,9 @@ export class TerrainSystem implements System {
     set(pos: [number, number], spec: TerrainSpec) {
         this.array[pos[1]*WORLDSIZE+pos[0]] = spec.iota
     }
+    setByIota(pos: [number, number], iota: number) {
+        this.array[pos[1]*WORLDSIZE+pos[0]] = iota
+    }
     copy(): System {
         return new TerrainSystem(this.array.slice())
     }

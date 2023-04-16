@@ -5,6 +5,7 @@ import { TerrainSpec } from "../logic/terrain.ts"
 export const terrainSpecs = {
     dirt: new TerrainSpec("dirt"),
     sand: new TerrainSpec("sand"),
+    herb: new TerrainSpec("herb"),
     shallowWater: new TerrainSpec("shallow water"),
     deepWater: new TerrainSpec("deep water"),
     field: new TerrainSpec("field"),

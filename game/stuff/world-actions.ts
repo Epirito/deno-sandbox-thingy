@@ -1,14 +1,17 @@
 import { SaturatedAction, Action } from "../logic/action.ts";
 import { damage } from "../logic/damageable.ts";
 import { Entity } from "../logic/entity.ts";
+import { feed, hunger } from "../logic/nutrition.ts";
 import { PhysicsSystem } from "../logic/physics.ts";
 import { ProngSystem, defaultSignal, signalHop } from "../logic/prong.ts";
 import { Scheduler } from "../logic/scheduler.ts";
+import { TerrainSystem } from "../logic/terrain.ts";
 import { ThingManager } from "../logic/thing-manager.ts";
 import { ActionRequester, ContainerSystem, containerDependency, systemDependency } from "../mod.ts";
 import { rotatedBy } from "../utils/vector.ts";
 import { sum } from "../utils/vector.ts";
 import { push } from "./actions.ts";
+import { terrainSpecs } from "./terrain-specs.ts";
 
 export const schedule = new Action(true, undefined, dependencies=>(_, vals)=> {
     const {scheduler} = dependencies as {scheduler: Scheduler}
@@ -84,6 +87,13 @@ export const destroy = new Action(true, undefined, dependencies=>(terms, _)=>{
     const {scheduler} = dependencies as {scheduler: Scheduler}
     scheduler.schedule(0, destroySync.from(terms))
 })
+export const destroyEquipped = new Action(true, undefined, deps=>(terms: Entity[], _)=>{
+    const {container, actionRequester} = deps as {container: ContainerSystem, actionRequester: ActionRequester}
+    const [entity] = terms
+    const equipped = container.getEquipped(entity)!
+    container.deleteEquipped(entity)
+    actionRequester.doAction(...destroySync.from([equipped]))
+})
 export const collision = new Action(true, undefined, dependencies=>(terms, vals)=>{
     const [movingEntity] = terms
     const {axis, hitPos} = vals as {axis: 0|1, hitPos: [number, number]}
@@ -110,3 +120,33 @@ export const projectileHit = new Action(true, undefined,
         actionRequester.doAction(...destroy.from([bullet]))
     }
 )
+
+export const setTile = new Action(true, undefined, 
+    deps=>(terms,vals)=>{
+        const {terrain} = deps as {terrain: TerrainSystem}
+        const {pos, tileIota} = vals as {pos: [number, number], tileIota: number}
+        terrain.setByIota(pos, tileIota)
+    })
+
+    export const eatGrass = new Action(false, undefined, deps=>(terms, _)=>{
+        const {actionRequester, phys, terrain} = deps as {actionRequester: ActionRequester, phys: PhysicsSystem, terrain: TerrainSystem}
+        const [actor] = terms
+        const pos = phys.position(actor)!
+        if (terrain.get(pos)===terrainSpecs.herb) {
+            actionRequester.doAction(...setTile.from([], {pos, terrainIota: terrainSpecs.dirt.iota}))
+            feed(actor, 1)
+        }
+    })
+    export const decay = new Action(true, undefined, deps=>(terms, _)=>{
+        const [entity] = terms
+        const {actionRequester} = deps as {actionRequester: ActionRequester}
+        if(entity.nutritionComp) {
+            hunger(actionRequester, entity)
+        }
+    })
+    export const make = new Action(true, undefined, deps=>(terms, vals)=>{
+        const {essence, pos} = vals as {essence: string, pos: [number, number]}
+        const {thingManager, phys} = deps as {thingManager: ThingManager, phys: PhysicsSystem}
+        const entity = thingManager.make!(essence)
+        phys.place(entity, {position: pos, rotation: 0})
+    })

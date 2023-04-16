@@ -22,7 +22,6 @@ const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     pineTree: ['🌲'],
     palmTree: ['🌴'],
     cactus: ['🌵'],
-    herb: ['🌿'],
     pick: ['⛏️'],
     axe: ['🪓'],
     trap: ['🪤'],
@@ -54,8 +53,17 @@ const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     parrot: ['🦜'],
     owl: ['🦉'],
     eagle: ['🦅'],
+    apple: ['🍎'],
 }
-const terrainGlyphs = ['🟫', '🟨', '🟦', '🟦', '🟫', '🌾', '🌱', '◼️', '◼️']
+const terrainGlyphs = {
+    sand:'🟨',
+    dirt:'🟫',
+    'shallow water': '🟦',
+    crops: '🌾',
+    'young crops': '🌱',
+    'coal ore': '◼️',
+    herb: '🌿',
+} as Record<string, string>
 for(const glyph in rawGlyphs) {
     const val = rawGlyphs[glyph]
     if ("on" in val) {
@@ -76,7 +84,7 @@ export function getGlyph(entity: IEntity, pov: SimulationPOV):string {
     return glyphs.get(entity.examinableComp)!(entity, pov.phys)
 }
 export function getTerrainGlyph(terrain: TerrainSpec) {
-    return (terrainGlyphs[terrain.iota] as string)
+    return (terrainGlyphs[terrain.name])
 }
 const dummyEntity =  new Entity('',1)
 export function getStaticGlyph(examinable: ExaminableComponent) {

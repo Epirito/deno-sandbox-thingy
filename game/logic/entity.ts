@@ -9,9 +9,10 @@ import { SignalQueueComponent } from "./mux.ts";
 import { SpeedComponent } from "./speed-based-physics.ts";
 import { IAgent } from "./ai.ts";
 import { System } from "../mod.ts";
+import { FlatMeleeSpec } from "./melee.ts";
 export class Entity implements IEntity {
     essence?: string; 
-    useComp?: (user: Entity, hoverPos: [number, number] | undefined)=>SaturatedAction;
+    useComp?: Action;
     interactComp?: (user: Entity, entity: Entity)=>SaturatedAction;
     damageableComp?: DamageableComponent;
     examinableComp?: ExaminableComponent;
@@ -28,6 +29,13 @@ export class Entity implements IEntity {
     agentComp?: IAgent
     touchComp?: Action
     flowFieldComp?: string
+    unarmedAttack?: Action
+    meleeWeaponAttack?: Action
+    bloodStreamComp?: {poison: number}
+    weaponData?: FlatMeleeSpec
+    unarmedData?: FlatMeleeSpec
+    moveRecoveryComp?: {baseRecovery: number, inRecovery: boolean}
+    nutritionComp?: {nutrition: number, maxNutrition: number}
     constructor(readonly id: string, public size: number, public blocksMovement = false) {
     }
     copy() {

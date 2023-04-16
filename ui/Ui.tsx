@@ -16,6 +16,11 @@ export default function Ui(props: {pov: SimulationPOV}) {
         pov.phys.inFrontOf(player)! : pov.phys.position(player)!).filter(entity=>entity!==player)) 
         : []
     const items = useGameState(()=>getContents() ?? getEntities(), addUpdateListener)
+    if (!player) {
+        return <div>
+            <h1>You died</h1>
+        </div>
+    }
     return <div>{craftingComp ? <ListCrafting pov={pov}/> : <ListGameItems
         title={pov.openContainer ? pov.openContainer.examinableComp?.examine(player, pov.openContainer)[0] : undefined}
         items={items}

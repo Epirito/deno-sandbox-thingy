@@ -1,5 +1,6 @@
 import { Entity } from "./entity.ts";
 import { System } from "./simulation.ts";
+import { ActionRequester } from "./trivial-systems.ts";
 
 export class Action {
     static n = 0;
@@ -15,3 +16,11 @@ export class Action {
     }
 }
 export type SaturatedAction = [number, string[], Record<string, unknown>]
+export function concat(...actions: Action[]) {
+    return new Action(false, undefined, (dependencies: Record<string, System>)=>(terms: Entity[], vals?: Record<string, unknown>)=> {
+        const {actionRequester} = dependencies as {actionRequester: ActionRequester}
+        actions.forEach(action=>{
+            actionRequester.doAction(...action.from(terms, vals))
+        })
+    })
+}

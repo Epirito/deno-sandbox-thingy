@@ -8,9 +8,10 @@ import { ThingManager } from "../logic/thing-manager.ts";
 import { examinables } from "./examinables.ts";
 import { ActionRequester } from "../mod.ts";
 import { SpeedComponent, applySpeed } from "../logic/speed-based-physics.ts";
-import { destroy, enter, projectileHit } from "./world-actions.ts";
+import { destroy, destroyEquipped, enter, projectileHit } from "./world-actions.ts";
 import { TerrainSystem } from "../logic/terrain.ts";
 import { terrainSpecs } from "./terrain-specs.ts";
+import { heal } from "../logic/damageable.ts";
 
 export const push = new Action(false,undefined, dependencies=>(terms, vals)=>{
     const {phys} = dependencies as {phys: PhysicsSystem}
@@ -41,7 +42,7 @@ export const use = new Action(false,
         if (item) {
             const action = item.useComp
             if (action) {
-                actionRequester.doAction(...action(user, hoverPos))
+                actionRequester.doAction(...action.from([user], {hoverPos}))
                 return
             }
             return "Nothing happens"
@@ -132,8 +133,11 @@ export const pickStrikeAction = new Action(false, undefined, (dependencies: Reco
         terrain.set(pos, terrainSpecs.dirt)
     }
 })
-export const shoot2 = (user: Entity, hoverPos: [number, number] | undefined) => emitProjectileTo.from([user], {hoverPos})
-export const axeCut = (user: Entity, hoverPos: [number, number] | undefined) => destroy.from([user], {hoverPos})
-export const pickStrike = (user: Entity, hoverPos: [number, number] | undefined) => pickStrikeAction.from([user], {hoverPos})
-
+const FOODHEAL = 5
+export const eat = new Action(false, undefined, (deps: Record<string, unknown>)=>(terms: Entity[], _vals?: Record<string, unknown>)=> {
+    const {actionRequester} = deps as {actionRequester: ActionRequester}
+    const [entity] = terms;
+    heal(entity, FOODHEAL)
+    actionRequester.doAction(...destroyEquipped.from([entity]))
+})
 export const drive = (user: Entity, entity: Entity)=> enter.from([user, entity], {})

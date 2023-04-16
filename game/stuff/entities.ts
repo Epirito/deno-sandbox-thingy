@@ -4,84 +4,100 @@ import { ProngSystem, ProngedComponent } from "../logic/prong.ts";
 import { lampSpec, inputSpec, wireSpec, bimuxSpec } from "./pronged-specs.ts";
 import { CraftingComponent, Recipe } from "../logic/crafting.ts";
 import { Scheduler } from "../logic/scheduler.ts";
-import { collision, onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
+import { collision, eatGrass, onPlacedOnBelt, onPressureListenerPlaced, onPressureListenerUnplaced, pressurePlateDetection, schedule } from "./world-actions.ts";
 import { System } from "../logic/simulation.ts";
-import { axeCut, axeCutAction, examinables } from "../mod.ts";
+import { axeCutAction, eat, emitProjectileTo, examinables, pickStrikeAction } from "../mod.ts";
 import { ContainerComponent, HandComponent } from "../logic/container.ts";
-import { drive, pickStrike, shoot2 } from "./actions.ts";
+import { drive, } from "./actions.ts";
 import { SpeedComponent } from "../logic/speed-based-physics.ts";
 import { HuntAI, WanderAI } from "./agents.ts";
 import { touchSpike } from "./world-gen.ts";
+import { flatUnarmedAttack, meleeTouch } from "../logic/melee.ts";
 export type EntityFactory = (dependencies: Record<string, unknown>, bare: Entity)=>Entity
+const basicEntity: EntityFactory = (_, bare: Entity)=>{
+    bare.size = 2;
+    return bare
+}
 export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)=>Entity} = {
+    apple: (_, bare: Entity)=> {
+        bare.size = 2;
+        bare.useComp = eat;
+        return bare
+    },
+    coal: basicEntity,
+    iron: basicEntity,
     zombie: (_, bare: Entity)=> {
         bare.size = 6;
-        bare.examinableComp = examinables.zombie
         bare.damageableComp = {integrity: 20, total: 20}
         bare.blocksMovement = true;
-        bare.agentComp = new HuntAI('human');
+        bare.unarmedData = {dmg: 2}
+        bare.unarmedAttack = flatUnarmedAttack;
+        bare.touchComp = meleeTouch;
+        bare.agentComp = new HuntAI(['human']);
         return bare;
     },
-    rabbit: (_, bare: Entity)=> {
+    rabbit: (deps, bare: Entity)=> {
+        const {phys} = deps as {phys: PhysicsSystem}
         bare.size = 2;
         bare.flowFieldComp = 'smallAnimal'
-        bare.examinableComp = examinables.rabbit
+        bare.nutritionComp = {nutrition: 10, maxNutrition: 20}
         bare.damageableComp = {integrity: 4, total: 4}
         bare.blocksMovement = true;
-        bare.agentComp = new HuntAI('human', true);
+        bare.agentComp = new HuntAI(['human', 'predator'], true);
+        phys.onPlaced(bare, eatGrass.from([bare]))
         return bare
     },
     chicken: (_, bare: Entity)=> {
         bare.size = 3;
         bare.flowFieldComp = 'smallAnimal'
-        bare.examinableComp = examinables.chicken
         bare.damageableComp = {integrity: 4, total: 4}
         bare.blocksMovement = true;
-        bare.agentComp = new HuntAI('predator', true);
+        bare.agentComp = new HuntAI(['predator'], true);
         return bare
     },
     wolf: (_, bare: Entity)=> {
         bare.size = 4;
         bare.flowFieldComp = 'predator'
-        bare.examinableComp = examinables.wolf
         bare.damageableComp = {integrity: 10, total: 10}
         bare.blocksMovement = true;
-        bare.agentComp = new HuntAI('smallAnimal');
+        bare.unarmedData = {dmg: 4}
+        bare.unarmedAttack = flatUnarmedAttack;
+        bare.touchComp = meleeTouch;
+        bare.agentComp = new HuntAI(['smallAnimal']);
         return bare
     },
     cactus: (_, bare: Entity)=> {
         bare.size = 4;
-        bare.examinableComp = examinables.cactus
         bare.touchComp = touchSpike;
         return bare
     },
     man: (_, bare: Entity)=> {
         bare.size = 6;
         bare.flowFieldComp = 'human';
-        bare.examinableComp = examinables.man
         bare.handComp = new HandComponent(5);
         bare.damageableComp = {integrity: 20, total: 20}
         bare.blocksMovement = true;
+        bare.unarmedData = {dmg: 2}
+        bare.unarmedAttack = flatUnarmedAttack;
+        bare.touchComp = meleeTouch
+        bare.moveRecoveryComp = {baseRecovery: 10, inRecovery: false}
         return bare;
     },
     gun: (_, bare: Entity)=> {
         const gun = bare;
-        gun.examinableComp = examinables.gun;
-        gun.useComp = shoot2;
+        gun.useComp = emitProjectileTo;
         return gun;
     },
     axe: (_, bare: Entity)=> {
-        bare.examinableComp = examinables.axe;
-        bare.useComp = axeCut;
+        //bare.useComp = axeCut;
         return bare;
     },
     pick: (_, bare: Entity)=> {
-        bare.useComp = pickStrike
-        bare.examinableComp = examinables.pick;
+        bare.useComp = pickStrikeAction
+        bare.weaponData = {dmg: 2}
         return bare
     },
     car: (_, bare: Entity)=> {
-        bare.examinableComp = examinables.car;
         bare.size = 30;
         bare.blocksMovement = true;
         bare.damageableComp = {integrity: 100, total: 100}
@@ -93,7 +109,6 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
     chest: (_, bare: Entity)=> {
         const chest = bare;
         chest.containerComp = new ContainerComponent(5);
-        chest.examinableComp = examinables.chest
         chest.blocksMovement = true;
         return chest;
     },

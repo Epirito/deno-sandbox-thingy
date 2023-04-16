@@ -92,6 +92,9 @@ export class ContainerSystem implements IContainerSystem {
     });
     this.containedByContainer.delete(container);
   }
+  deleteEquipped(actor: Entity) {
+    this.equippedByEntity.delete(actor);
+  }
   tryDrop(actor: Entity) {
     const item = this.equippedByEntity.get(actor);
     if (!item) {
