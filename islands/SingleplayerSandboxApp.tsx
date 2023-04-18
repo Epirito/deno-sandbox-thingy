@@ -13,10 +13,11 @@ import Lobby from "../ui/Lobby.tsx";
 import { DungeonMaster, SingleplayerDungeonMasterClient } from "../game/stuff/dungeon-master.ts";
 export default function SingleplayerSandboxApp() {
     const [screen, setScreen] = useState(undefined as string[][] | undefined)
+    const [debugDungeonMaster, setDebugDungeonMaster] = useState(undefined as DungeonMaster | undefined)
     const pov = useRef(undefined as SimulationPOV | undefined)
     const client = useRef(undefined as SingleplayerClient<SaturatedAction, SimulationWrapper> | undefined)
     useEffect(()=>{
-        const [game, ids] = spawnPlayers(debugWorld(Simulation.build()), 1, [1,1])
+        const [game, ids] = spawnPlayers(debugWorld(Simulation.build()), 1)
         const wrapper = new SimulationWrapper(game, {playerEntityIds: ids})
         client.current = new SingleplayerClient(
             (nPlayers)=>{
@@ -30,7 +31,11 @@ export default function SingleplayerSandboxApp() {
                 console.log(pov.current)
                 listenForMovementInput(pov.current)
                 const dungeonMaster = new DungeonMaster(new SingleplayerDungeonMasterClient(wrapper))
-                setInterval(()=>{dungeonMaster.update()}, 500)
+                // debug flow field:
+                //setDebugDungeonMaster(dungeonMaster)
+                setInterval(()=>{
+                    dungeonMaster.update()
+                }, 200)
             }, 
             /*
             (f)=>{
@@ -51,7 +56,7 @@ export default function SingleplayerSandboxApp() {
     },[])
     const player = useGameState(()=>pov.current?.player, addUpdateListener)
     return <div>{pov.current ? <div>
-            <Tiles pov={pov.current!} dimensions={[40, 20]}/>
+            <Tiles pov={pov.current!} dimensions={[40, 20]} debug={debugDungeonMaster}/>
             <Ui pov={pov.current!}/>
         </div>: null}
         </div>

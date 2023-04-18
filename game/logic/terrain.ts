@@ -4,7 +4,7 @@ import { WORLDSIZE } from "./constants.ts"
 export class TerrainSpec {
     static byIota: TerrainSpec[] = []
     iota: number
-    constructor(readonly name: string, readonly harvesting: Record<string, number> = {}) {
+    constructor(readonly name: string, readonly harvesting: Record<string, number> = {}, readonly blocksMovement=false) {
         this.iota = TerrainSpec.byIota.length
         TerrainSpec.byIota.push(this)
     }

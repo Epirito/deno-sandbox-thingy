@@ -20,4 +20,6 @@ export const examinables: Record<string, ExaminableComponent> = {
     chicken: new PlainExaminableComponent('chicken', ''),
     wolf: new PlainExaminableComponent('wolf', ''),
     apple: new PlainExaminableComponent('apple', ''),
+    coal: new PlainExaminableComponent('coal', ''),
+    iron: new PlainExaminableComponent('iron', ''),
 }

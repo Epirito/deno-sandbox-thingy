@@ -47,6 +47,9 @@ export class SimulationWrapper implements Game<SaturatedAction, SimulationWrappe
     playerById(id: number) {
         return this.playersByPlayerId.get(id)
     }
+    forEachPlayer(cb: (player: PlayerData)=>void) {
+        this.playersByPlayerId.forEach(cb)
+    }
     constructor(readonly sim: Simulation, {playerEntityIds, playerData}: {
         playerEntityIds?: string[], 
         playerData?: PlayerData[]

@@ -3,7 +3,7 @@ import { SimulationPOV } from "../logic/simulation-pov.ts";
 import { ISimulation, ISimulationPOV, SaturatedAction } from "../mod.ts";
 import { IAgent } from "../logic/ai.ts";
 import { AsExpression } from "https://deno.land/x/ts_morph@17.0.1/ts_morph.js";
-import { rotatedBy, scalarMult, sum } from "../utils/vector.ts";
+import { pointInRect, rotatedBy, scalarMult, sum } from "../utils/vector.ts";
 import { FlowField } from "./dungeon-master.ts";
 import { WORLDSIZE } from "../logic/constants.ts";
 
@@ -58,14 +58,16 @@ export class HuntAI implements IAgent {
         for(let rotation = 0; rotation < 4; rotation++) {
             const vec = rotatedBy(east, rotation)
             const destination = sum(pos, vec)
-            const value = valueOfFieldDisjunction(destination)
-            if (value!==undefined) {
+            if (pointInRect(destination, [0,0], [WORLDSIZE, WORLDSIZE])) {
+                const value = valueOfFieldDisjunction(destination)
                 options.push({rotation, value})
             }
         }
         if (this.flee) {
             const bestOption = options.reduce((a, b)=>a.value > b.value ? a : b)
-            return walk.from([], {rotation: bestOption.rotation})
+            if (bestOption.value > valueOfFieldDisjunction(pos)) {
+                return walk.from([], {rotation: bestOption.rotation})
+            }
         }else {
             const bestOption = options.reduce((a, b)=>a.value < b.value ? a : b)
             if (bestOption.value < valueOfFieldDisjunction(pos)) {
@@ -74,4 +76,11 @@ export class HuntAI implements IAgent {
         }
         return null
     }
+}
+export function disjunction(agent0: IAgent, agent1: IAgent) {
+    return {
+        getAction(pov: ISimulationPOV, dmCompute: {flowField: (field: string, pos: [number,number])=>number}) {
+            return agent0.getAction(pov, dmCompute) ?? agent1.getAction(pov, dmCompute)
+        }
+    } as IAgent
 }

@@ -18,9 +18,6 @@ const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     bucket: ['🥛'],
     log: ['🪵'],
     rock: ['🪨'],
-    tree: ['🌳'],
-    pineTree: ['🌲'],
-    palmTree: ['🌴'],
     cactus: ['🌵'],
     pick: ['⛏️'],
     axe: ['🪓'],
@@ -54,15 +51,23 @@ const rawGlyphs: Record<string, string[] | {on: string, off: string}> = {
     owl: ['🦉'],
     eagle: ['🦅'],
     apple: ['🍎'],
+    iron: ['⬜'],
+    coal: ['◼️'],
 }
 const terrainGlyphs = {
     sand:'🟨',
+    grass: '🟩',
     dirt:'🟫',
+    snow: '⬜',
     'shallow water': '🟦',
+    'deep water': '🟦',
     crops: '🌾',
     'young crops': '🌱',
     'coal ore': '◼️',
     herb: '🌿',
+    tree: '🌳',
+    'pine tree': '🌲',
+    'palm tree': '🌴',
 } as Record<string, string>
 for(const glyph in rawGlyphs) {
     const val = rawGlyphs[glyph]

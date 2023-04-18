@@ -7,6 +7,7 @@ import { ActionRequester } from "./trivial-systems.ts";
 import { ThingManager } from "./thing-manager.ts";
 import { SaturatedAction } from "./action.ts";
 import { WORLDSIZE } from "./constants.ts";
+import { TerrainSystem } from "./terrain.ts";
 
 class PhysicsState {
   constructor(public position: [number, number], public rotation: number) {}
@@ -35,8 +36,10 @@ export class PhysicsSystem implements IPhysicsSystem {
   private stateByEntity = new Map<Entity, PhysicsState>();
   private entitiesByPosition = new MultiMap<string, Entity>();
   private actionRequester: ActionRequester
-  constructor({actionRequester}: Record<string, System>) {
+  private terrain: TerrainSystem
+  constructor({actionRequester, terrain}: Record<string, System>) {
     this.actionRequester = actionRequester as ActionRequester
+    this.terrain = terrain as TerrainSystem
     this.unplaced = new CopiableEventTarget<VoidEvent>(actionRequester as ActionRequester);
     this.placed = new CopiableEventTarget<VoidEvent>(actionRequester as ActionRequester);
     this.placedAt = new CopiableEventTarget<EntityEvent>(actionRequester as ActionRequester);
@@ -55,7 +58,7 @@ export class PhysicsSystem implements IPhysicsSystem {
     return sum(this.facing(entity), this.position(entity)!);
   }
   isBlocked(position: [number, number]) {
-    return position.some(value=>value<0 || value>=WORLDSIZE) || (this.entitiesByPosition.get(JSON.stringify(position))?.some(x=>x.blocksMovement) ?? false)
+    return position.some(value=>value<0 || value>=WORLDSIZE) || this.terrain.get(position).blocksMovement || (this.entitiesByPosition.get(JSON.stringify(position))?.some(x=>x.blocksMovement) ?? false)
   }
   entitiesAt(position: [number, number]) {
     return this.entitiesByPosition.get(JSON.stringify(position)) ?? [];

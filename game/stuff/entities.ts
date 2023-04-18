@@ -10,7 +10,7 @@ import { axeCutAction, eat, emitProjectileTo, examinables, pickStrikeAction } fr
 import { ContainerComponent, HandComponent } from "../logic/container.ts";
 import { drive, } from "./actions.ts";
 import { SpeedComponent } from "../logic/speed-based-physics.ts";
-import { HuntAI, WanderAI } from "./agents.ts";
+import { HuntAI, WanderAI, disjunction } from "./agents.ts";
 import { touchSpike } from "./world-gen.ts";
 import { flatUnarmedAttack, meleeTouch } from "../logic/melee.ts";
 export type EntityFactory = (dependencies: Record<string, unknown>, bare: Entity)=>Entity
@@ -43,7 +43,7 @@ export const entities: {[x: string]: (dep: Record<string, System>, bare: Entity)
         bare.nutritionComp = {nutrition: 10, maxNutrition: 20}
         bare.damageableComp = {integrity: 4, total: 4}
         bare.blocksMovement = true;
-        bare.agentComp = new HuntAI(['human', 'predator'], true);
+        bare.agentComp = disjunction(new HuntAI(['human', 'predator'], true), new WanderAI(0.5))
         phys.onPlaced(bare, eatGrass.from([bare]))
         return bare
     },

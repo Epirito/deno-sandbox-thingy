@@ -6,8 +6,9 @@ import { addUpdateListener } from "./screen-update.ts";
 import { sum } from "../game/utils/vector.ts";
 import {useState, useEffect} from 'preact/hooks'
 import { WORLDSIZE } from "../game/logic/constants.ts";
+import { DungeonMaster } from "../game/stuff/dungeon-master.ts";
 type Tile = {glyph: string, bg: [number, number, number]}
-export default function Tiles(props: {pov: SimulationPOV, dimensions: [number, number]}) {
+export default function Tiles(props: {pov: SimulationPOV, dimensions: [number, number], debug: DungeonMaster | undefined}) {
     const [mousePos, setMousePos] = useState(undefined as [number, number] | undefined)
     const [tiles, cameraPos] = useGameState(()=>{
         const cameraPos = props.pov.player
@@ -24,7 +25,10 @@ export default function Tiles(props: {pov: SimulationPOV, dimensions: [number, n
                     const entity = entitiesAt[entitiesAt.length-1] as IEntity | undefined
                     const glyph = entity ? getGlyph(entity, props.pov) : getTerrainGlyph(props.pov.terrain.get(pos))
                     let bg: [number, number, number] = [0,0,0]
-                    if (entity?.damageableComp) {
+                    if (props.debug) {
+                        const debug = Math.min(255, props.debug.flowField('human', pos) * 10)
+                        bg = [debug, debug, debug]
+                    }else if (entity?.damageableComp) {
                         const hp = entity.damageableComp.integrity / entity.damageableComp.total
                         if (hp < 1.0) {
                             bg = [128 * (1-hp), 128 * hp, 0] 

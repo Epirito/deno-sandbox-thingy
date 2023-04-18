@@ -132,7 +132,7 @@ export const setTile = new Action(true, undefined,
         const {actionRequester, phys, terrain} = deps as {actionRequester: ActionRequester, phys: PhysicsSystem, terrain: TerrainSystem}
         const [actor] = terms
         const pos = phys.position(actor)!
-        if (terrain.get(pos)===terrainSpecs.herb) {
+        if (terrain.get(pos)===terrainSpecs.herb && actor.nutritionComp?.nutrition !==actor.nutritionComp?.maxNutrition) {
             actionRequester.doAction(...setTile.from([], {pos, terrainIota: terrainSpecs.dirt.iota}))
             feed(actor, 1)
         }

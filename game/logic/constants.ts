@@ -1,1 +1,1 @@
-export const WORLDSIZE = 100
+export const WORLDSIZE = 500

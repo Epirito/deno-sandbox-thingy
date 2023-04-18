@@ -8,6 +8,8 @@
     "@preact/signals-core": "https://esm.sh/*@preact/signals-core@1.2.3",
     "game": "./game/mod.ts",
     "modularMultiplayer": "https://raw.githubusercontent.com/Epirito/multiplayer/main/client/mod.ts",
-    "multiplayerServer" : "https://raw.githubusercontent.com/Epirito/multiplayer/main/server/mod.ts"
+    "multiplayerServer" : "https://raw.githubusercontent.com/Epirito/multiplayer/main/server/mod.ts",
+    "rng":"https://raw.githubusercontent.com/ondras/rot.js/master/lib/rng.js",
+    "noise":"https://raw.githubusercontent.com/ondras/rot.js/master/lib/noise/index.js"
   }
 }

@@ -13,7 +13,7 @@ export class ProngSpec {
         readonly kind: string
     ) {}
 }
-
+// TO DO: Make progedSpec serializable and replace prongedComponent with it. Then move prongedComponent to prongSystem
 export interface ProngedSpec {
     prongsBySystem: Map<
         ProngSystem,
