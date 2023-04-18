@@ -14,7 +14,7 @@ export interface DungeonMasterClient {
     dmInput(action: SaturatedAction): void
 }
 
-const CHUNKFACTOR = 10
+const CHUNKFACTOR = 20
 const chunkSize = WORLDSIZE/CHUNKFACTOR
 if (chunkSize!==Math.floor(chunkSize)) {
     throw new Error('chunkSize must be an integer')

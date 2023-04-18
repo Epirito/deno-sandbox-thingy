@@ -3,6 +3,7 @@ import { IEntity, Recipe } from "../game/mod.ts";
 import { getGlyph, getStaticGlyph } from "./glyphs.ts";
 import { ComponentType } from 'preact'
 import { useDOMEvent } from "./hooks.ts";
+import { useState } from "preact/hooks";
 export function PresentationButton<T>({item, selected, click, keyDown, children}: {
     item: T, 
     selected: boolean, 
@@ -10,6 +11,7 @@ export function PresentationButton<T>({item, selected, click, keyDown, children}
     keyDown: Record<string,(item: T)=>void>,
     children: any | any[]
 }) {
+    const [mouseSelected, setMouseSelected] = useState(false)
     useDOMEvent('keydown', (e: KeyboardEvent)=>{
         if (selected && keyDown[e.key]) {
             keyDown[e.key](item)
@@ -17,12 +19,11 @@ export function PresentationButton<T>({item, selected, click, keyDown, children}
     }, [selected, item])
     return <button 
             onClick={()=>{
-                console.log({selected})
-                if (selected) {
-                    click(item)
-                }
+                click(item)
             }}
-            style={{backgroundColor: selected ? 'yellow' : 'white'}}
+            onMouseEnter={()=>{setMouseSelected(true)}}
+            onMouseLeave={()=>{setMouseSelected(false)}}
+            style={{backgroundColor: mouseSelected? 'cyan' : selected ? 'lightblue' : 'white'}}
         >{children}</button>
 }
 export const recipeInUi = (pov: SimulationPOV, onClick: (item: Recipe)=>void, onKeyDown: Record<string,(item: Recipe)=>void>) =>
