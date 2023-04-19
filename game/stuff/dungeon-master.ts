@@ -9,6 +9,8 @@ import{hash, neighbors, rectOutline, sum} from "../utils/vector.ts"
 import { TerrainSystem } from "../logic/terrain.ts";
 import { terrainSpecs } from "./terrain-specs.ts";
 import { decay, make, setTile } from "./world-actions.ts";
+import Random from "rng"
+
 export interface DungeonMasterClient {
     get world(): SimulationWrapper;
     dmInput(action: SaturatedAction): void
@@ -55,18 +57,6 @@ export class FlowField {
     }
     updateAll(isSource: (point: [number, number])=>boolean, cost: (point: [number, number])=>number) {
         this.updateRect([0,0], [WORLDSIZE, WORLDSIZE], isSource, cost)
-        /*
-        for(let y = 0; y<WORLDSIZE; y++) {
-            for(let x = 0; x<WORLDSIZE; x++) {
-                this.updateAt(x, y, isSource, cost)
-            }
-        }
-        for(let y = WORLDSIZE-1; y>=0; y--) {
-            for(let x = WORLDSIZE-1; x>=0; x--) {
-                this.updateAt(x, y, isSource, cost)
-            }
-        }
-        */
     }
 }
 export class SingleplayerDungeonMasterClient implements DungeonMasterClient {
@@ -95,16 +85,21 @@ export class DungeonMaster {
     }
     defaultCost = (point: [number, number]) => {
         const tile = this.systems.terrain.get(point)
-        return tile.blocksMovement || tile === terrainSpecs.deepWater ? MAX : 1
+        return tile.blocksMovement ? MAX : tile === terrainSpecs.deepWater ? MAX : 1
     }
     constructor(private client: DungeonMasterClient) {
         for(const field in this.flowFields) {
             this.flowSources[field] = new Set()
         }
     }
-    
-    longTermUpdate() {
-        const pos = [Math.floor(Math.random() * WORLDSIZE), Math.floor(Math.random() * WORLDSIZE)] as [number,number];
+    randomPosInsideChunks(chunks: [number,number][]) {
+        const chunk = Random.getItem(chunks)
+        const x = chunk[0]*chunkSize+Math.floor(Math.random()*chunkSize)
+        const y = chunk[1]*chunkSize+Math.floor(Math.random()*chunkSize)
+        return [x,y] as [number,number]
+    }
+    longTermUpdate(chunks: [number, number][]) {
+        const pos = this.randomPosInsideChunks(chunks)
         const tile = this.systems.terrain.get(pos)
         switch(tile) {
             case terrainSpecs.youngCrops:
@@ -145,7 +140,6 @@ export class DungeonMaster {
     }
     update() {
         this.decayCounter = (this.decayCounter+1)%maxDecayCounter
-        this.longTermUpdate()
         for(const set in this.flowSources) {
             this.flowSources[set].clear()
         }
@@ -169,7 +163,9 @@ export class DungeonMaster {
         if (this.decayCounter===0) {
             this.systems.thingManager.entityById.forEach(entity=>this.client.dmInput(decay.from([entity])))
         }
-        this.getActiveChunks().forEach(([chunkX,chunkY])=>{
+        const chunks = this.getActiveChunks()
+        this.longTermUpdate(chunks)
+        chunks.forEach(([chunkX,chunkY])=>{
             const pos1 = [chunkX*chunkSize, chunkY*chunkSize] as [number, number]
             const pos2 = [pos1[0]+chunkSize, pos1[1]+chunkSize] as [number, number]
             for(const field in this.flowFields) {

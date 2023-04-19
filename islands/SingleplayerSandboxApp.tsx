@@ -32,7 +32,7 @@ export default function SingleplayerSandboxApp() {
                 listenForMovementInput(pov.current)
                 const dungeonMaster = new DungeonMaster(new SingleplayerDungeonMasterClient(wrapper))
                 // debug flow field:
-                //setDebugDungeonMaster(dungeonMaster)
+                setDebugDungeonMaster(dungeonMaster)
                 setInterval(()=>{
                     dungeonMaster.update()
                 }, 200)

@@ -58,20 +58,32 @@ export class HuntAI implements IAgent {
         for(let rotation = 0; rotation < 4; rotation++) {
             const vec = rotatedBy(east, rotation)
             const destination = sum(pos, vec)
+            /* 
+            check if destination is blocked, in case we are fleeing 
+            (a blocked tile is registered by the flow field as if it were 
+            maximally distant, which doesn't make sense when fleeing, and causes 
+            fleeing entities to get stuck)
+            */
+            if (pov.phys.isBlocked(destination)) {
+                continue
+            }
+
             if (pointInRect(destination, [0,0], [WORLDSIZE, WORLDSIZE])) {
                 const value = valueOfFieldDisjunction(destination)
                 options.push({rotation, value})
             }
         }
-        if (this.flee) {
-            const bestOption = options.reduce((a, b)=>a.value > b.value ? a : b)
-            if (bestOption.value > valueOfFieldDisjunction(pos)) {
-                return walk.from([], {rotation: bestOption.rotation})
-            }
-        }else {
-            const bestOption = options.reduce((a, b)=>a.value < b.value ? a : b)
-            if (bestOption.value < valueOfFieldDisjunction(pos)) {
-                return walk.from([], {rotation: bestOption.rotation})
+        if (options.length>0) {
+            if (this.flee) {
+                const bestOption = options.reduce((a, b)=>a.value > b.value ? a : b)
+                if (bestOption.value > valueOfFieldDisjunction(pos)) {
+                    return walk.from([], {rotation: bestOption.rotation})
+                }
+            }else {
+                const bestOption = options.reduce((a, b)=>a.value < b.value ? a : b)
+                if (bestOption.value < valueOfFieldDisjunction(pos)) {
+                    return walk.from([], {rotation: bestOption.rotation})
+                }
             }
         }
         return null
